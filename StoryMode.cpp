@@ -45,7 +45,7 @@ Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
 });
 
 Load< Sound::Sample > music_cold_dunes(LoadTagDefault, []() -> Sound::Sample * {
-	return new Sound::Sample(data_path("cold-dunes.opus"));
+	return new Sound::Sample(data_path("track.wav"));
 });
 
 StoryMode::StoryMode() {
