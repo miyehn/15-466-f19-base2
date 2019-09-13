@@ -158,7 +158,6 @@ GAME_NAMES =
 	load_wav
 	load_opus
 	DrawSprites
-	MenuMode
 	StoryMode
 	Sprite
 	data_path

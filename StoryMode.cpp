@@ -1,260 +1,209 @@
 #include "StoryMode.hpp"
 
-#include "Sprite.hpp"
-#include "DrawSprites.hpp"
+// #include "Sprite.hpp"
+// #include "DrawSprites.hpp"
 #include "Load.hpp"
 #include "data_path.hpp"
 #include "gl_errors.hpp"
-#include "MenuMode.hpp"
 #include "Sound.hpp"
+#include <glm/gtc/type_ptr.hpp>
 
-Sprite const *sprite_left_select = nullptr;
-Sprite const *sprite_right_select = nullptr;
-
-Sprite const *sprite_dunes_bg = nullptr;
-Sprite const *sprite_dunes_traveller = nullptr;
-Sprite const *sprite_dunes_ship = nullptr;
-
-Sprite const *sprite_oasis_bg = nullptr;
-Sprite const *sprite_oasis_traveller = nullptr;
-Sprite const *sprite_oasis_missing = nullptr;
-
-Sprite const *sprite_hill_bg = nullptr;
-Sprite const *sprite_hill_traveller = nullptr;
-Sprite const *sprite_hill_missing = nullptr;
-
-Load< SpriteAtlas > sprites(LoadTagDefault, []() -> SpriteAtlas const * {
-	SpriteAtlas const *ret = new SpriteAtlas(data_path("the-planet"));
-
-	sprite_left_select = &ret->lookup("text-select-left");
-	sprite_right_select = &ret->lookup("text-select-right");
-
-	sprite_dunes_bg = &ret->lookup("dunes-bg");
-	sprite_dunes_traveller = &ret->lookup("dunes-traveller");
-	sprite_dunes_ship = &ret->lookup("dunes-ship");
-
-	sprite_oasis_bg = &ret->lookup("oasis-bg");
-	sprite_oasis_traveller = &ret->lookup("oasis-traveller");
-	sprite_oasis_missing = &ret->lookup("oasis-missing");
-
-	sprite_hill_bg = &ret->lookup("hill-bg");
-	sprite_hill_traveller = &ret->lookup("hill-traveller");
-	sprite_hill_missing = &ret->lookup("hill-missing");
-
-	return ret;
-});
-
-Load< Sound::Sample > music_cold_dunes(LoadTagDefault, []() -> Sound::Sample * {
-	return new Sound::Sample(data_path("track.wav"));
+Load< Sound::Sample > soundtrack(LoadTagDefault, []() -> Sound::Sample * {
+  return new Sound::Sample(data_path("track.wav"));
 });
 
 StoryMode::StoryMode() {
+  //----- allocate OpenGL resources -----
+  { //vertex buffer:
+    glGenBuffers(1, &vertex_buffer);
+    //for now, buffer will be un-filled.
+
+    GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
+  }
+
+  { //vertex array mapping buffer for color_texture_program:
+    //ask OpenGL to fill vertex_buffer_for_color_texture_program with the name of an unused vertex array object:
+    glGenVertexArrays(1, &vertex_buffer_for_color_texture_program);
+
+    //set vertex_buffer_for_color_texture_program as the current vertex array object:
+    glBindVertexArray(vertex_buffer_for_color_texture_program);
+
+    //set vertex_buffer as the source of glVertexAttribPointer() commands:
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+
+    //set up the vertex array object to describe arrays of PongMode::Vertex:
+    glVertexAttribPointer(
+      color_texture_program.Position_vec4, //attribute
+      3, //size
+      GL_FLOAT, //type
+      GL_FALSE, //normalized
+      sizeof(Vertex), //stride
+      (GLbyte *)0 + 0 //offset
+    );
+    glEnableVertexAttribArray(color_texture_program.Position_vec4);
+    //[Note that it is okay to bind a vec3 input to a vec4 attribute -- the w component will be filled with 1.0 automatically]
+
+    glVertexAttribPointer(
+      color_texture_program.Color_vec4, //attribute
+      4, //size
+      GL_UNSIGNED_BYTE, //type
+      GL_TRUE, //normalized
+      sizeof(Vertex), //stride
+      (GLbyte *)0 + 4*3 //offset
+    );
+    glEnableVertexAttribArray(color_texture_program.Color_vec4);
+
+    glVertexAttribPointer(
+      color_texture_program.TexCoord_vec2, //attribute
+      2, //size
+      GL_FLOAT, //type
+      GL_FALSE, //normalized
+      sizeof(Vertex), //stride
+      (GLbyte *)0 + 4*3 + 4*1 //offset
+    );
+    glEnableVertexAttribArray(color_texture_program.TexCoord_vec2);
+
+    //done referring to vertex_buffer, so unbind it:
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    //done setting up vertex array object, so unbind it:
+    glBindVertexArray(0);
+
+    GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
+  }
+
+  { //solid white texture:
+    //ask OpenGL to fill white_tex with the name of an unused texture object:
+    glGenTextures(1, &white_tex);
+
+    //bind that texture object as a GL_TEXTURE_2D-type texture:
+    glBindTexture(GL_TEXTURE_2D, white_tex);
+
+    //upload a 1x1 image of solid white to the texture:
+    glm::uvec2 size = glm::uvec2(1,1);
+    std::vector< glm::u8vec4 > data(size.x*size.y, glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+
+    //set filtering and wrapping parameters:
+    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    //since texture uses a mipmap and we haven't uploaded one, instruct opengl to make one for us:
+    glGenerateMipmap(GL_TEXTURE_2D);
+    //Okay, texture uploaded, can unbind it:
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
+  }
 }
 
 StoryMode::~StoryMode() {
+  //----- free OpenGL resources -----
+  glDeleteBuffers(1, &vertex_buffer);
+  vertex_buffer = 0;
+
+  glDeleteVertexArrays(1, &vertex_buffer_for_color_texture_program);
+  vertex_buffer_for_color_texture_program = 0;
+
+  glDeleteTextures(1, &white_tex);
+  white_tex = 0;
 }
 
 bool StoryMode::handle_event(SDL_Event const &, glm::uvec2 const &window_size) {
-	if (Mode::current.get() != this) return false;
-
-	return false;
+  return false;
 }
 
 void StoryMode::update(float elapsed) {
-	if (Mode::current.get() == this) {
-		//there is no menu displayed! Make one:
-		enter_scene();
-	}
-
-	if (!background_music || background_music->stopped) {
-		background_music = Sound::play(*music_cold_dunes, 1.0f);
-	}
-}
-
-void StoryMode::enter_scene() {
-	//just entered this scene, adjust flags and build menu as appropriate:
-	std::vector< MenuMode::Item > items;
-	glm::vec2 at(3.0f, view_max.y - 3.0f - 11.0f);
-	auto add_text = [&items,&at](std::string text) {
-		while (text.size()) {
-			auto end = text.find('\n');
-			items.emplace_back(text.substr(0, end), nullptr, 1.0f, glm::u8vec4(0x00, 0x00, 0x00, 0xff), nullptr, at);
-			at.y -= 13.0f;
-			if (end == std::string::npos) break;
-			text = text.substr(end+1);
-		}
-		at.y -= 4.0f;
-	};
-	auto add_choice = [&items,&at](std::string const &text, std::function< void(MenuMode::Item const &) > const &fn) {
-		items.emplace_back(text, nullptr, 1.0f, glm::u8vec4(0x00, 0x00, 0x00, 0x88), fn, at + glm::vec2(16.0f, 0.0f));
-		items.back().selected_tint = glm::u8vec4(0x00, 0x00, 0x00, 0xff);
-		at.y -= 13.0f;
-		at.y -= 4.0f;
-	};
-
-	if (location == Dunes) {
-		if (dunes.wont_leave) {
-			dunes.wont_leave = false;
-			add_text(
-				"Something remains to accomplish.\n"
-				"I won't leave."
-			);
-		}
-		if (dunes.first_visit) {
-			dunes.first_visit = false;
-			add_text(
-				"The landing is turbulent.\n"
-				"As the sand settles, I see there is\n"
-				"nobody here to meet me."
-			);
-		} else {
-			add_text(
-				"There is still nobody here to meet me."
-			);
-		}
-		at.y -= 8.0f; //gap before choices
-		add_choice("Walk West", [this](MenuMode::Item const &){
-			location = Hill;
-			Mode::current = shared_from_this();
-		});
-		add_choice("Walk East", [this](MenuMode::Item const &){
-			location = Oasis;
-			Mode::current = shared_from_this();
-		});
-		if (!dunes.first_visit) {
-			add_choice("Leave", [this](MenuMode::Item const &){
-				if (added_stone) {
-					//TODO: some sort of victory animation?
-					Mode::current = nullptr;
-				} else {
-					dunes.wont_leave = true;
-					Mode::current = shared_from_this();
-				}
-			});
-		}
-	} else if (location == Oasis) {
-		if (oasis.took_stone) {
-			oasis.took_stone = false;
-			add_text(
-				"The stone fits snugly in my pocket."
-			);
-		}
-		if (oasis.first_visit) {
-			oasis.first_visit = false;
-			add_text(
-				"I search east, walking in ever-\n"
-				"greater circles. Just over the next\n"
-				"dune, I find an oasis."
-			);
-		} else {
-			add_text(
-				"The oasis sparkles in the sunlight."
-			);
-		}
-		if (!have_stone) {
-			add_text(
-				"Sitting in the glass-clear water is a\n"
-				"single blue gemstone."
-			);
-		}
-		at.y -= 8.0f; //gap before choices
-		if (!have_stone) {
-			add_choice("Take Stone", [this](MenuMode::Item const &){
-				have_stone = true;
-				oasis.took_stone = true;
-				Mode::current = shared_from_this();
-			});
-		}
-		add_choice("Return to the Ship", [this](MenuMode::Item const &){
-			location = Dunes;
-			Mode::current = shared_from_this();
-		});
-	} else if (location == Hill) {
-		if (hill.added_stone) {
-			hill.added_stone = false;
-			add_text(
-				"I add the blue stone to the circle.\n"
-				"Something trembles deep underground."
-			);
-		}
-		if (hill.first_visit) {
-			hill.first_visit = false;
-			add_text(
-				"I set off confidently to the west.\n"
-				"At the top of the third dune, a circle\n"
-				"of stones surrounds a shallow\n"
-				"depression in the ground."
-			);
-		} else {
-			if (added_stone) {
-				add_text(
-					"The circle of stones stands silently."
-				);
-			} else {
-				add_text(
-					"The circle of stones stands\n"
-					"expectantly."
-				);
-			}
-		}
-		at.y -= 8.0f; //gap before choices
-		if (have_stone && !added_stone) {
-			add_choice("Add Blue Stone", [this](MenuMode::Item const &){
-				added_stone = true;
-				hill.added_stone = true;
-				Mode::current = shared_from_this();
-			});
-		}
-		add_choice("Return to the Ship", [this](MenuMode::Item const &){
-			location = Dunes;
-			Mode::current = shared_from_this();
-		});
-	}
-	std::shared_ptr< MenuMode > menu = std::make_shared< MenuMode >(items);
-	menu->atlas = sprites;
-	menu->left_select = sprite_left_select;
-	menu->right_select = sprite_right_select;
-	menu->select_bounce_amount = 4.0f;
-	menu->left_select_tint = glm::u8vec4(0x00, 0x00, 0x00, 0xff);
-	menu->right_select_tint = glm::u8vec4(0x00, 0x00, 0x00, 0xff);
-	menu->view_min = view_min;
-	menu->view_max = view_max;
-	menu->background = shared_from_this();
-	Mode::current = menu;
+  if (!background_music || background_music->stopped) {
+    background_music = Sound::play(*soundtrack, 1.0f);
+  }
+  progress += elapsed * progress_speed;
 }
 
 void StoryMode::draw(glm::uvec2 const &drawable_size) {
-	//clear the color buffer:
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+  //some nice colors from the course web page:
+  #define HEX_TO_U8VEC4( HX ) (glm::u8vec4( (HX >> 24) & 0xff, (HX >> 16) & 0xff, (HX >> 8) & 0xff, (HX) & 0xff ))
+  const glm::u8vec4 hl_color = HEX_TO_U8VEC4(0xe8a343ff);
+  #undef HEX_TO_U8VEC4
 
-	//use alpha blending:
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//don't use the depth test:
-	glDisable(GL_DEPTH_TEST);
+  //---- compute vertices to draw ----
 
-	{ //use a DrawSprites to do the drawing:
-		DrawSprites draw(*sprites, view_min, view_max, drawable_size, DrawSprites::AlignPixelPerfect);
-		glm::vec2 ul = glm::vec2(view_min.x, view_max.y);
-		if (location == Dunes) {
-			draw.draw(*sprite_dunes_bg, ul);
-			draw.draw(*sprite_dunes_ship, ul);
-			draw.draw(*sprite_dunes_traveller, ul);
-		} else if (location == Oasis) {
-			draw.draw(*sprite_oasis_bg, ul);
-			if (!have_stone) {
-				draw.draw(*sprite_oasis_missing, ul);
-			}
-			draw.draw(*sprite_oasis_traveller, ul);
+  //vertices will be accumulated into this list and then uploaded+drawn at the end of this function:
+  std::vector< Vertex > vertices;
 
-		} else if (location == Hill) {
-			draw.draw(*sprite_hill_bg, ul);
-			if (added_stone) {
-				draw.draw(*sprite_hill_missing, ul);
-			}
-			draw.draw(*sprite_hill_traveller, ul);
-		}
-	}
-	GL_ERRORS(); //did the DrawSprites do something wrong?
+  //inline helper function for rectangle drawing:
+  auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
+    //split rectangle into two CCW-oriented triangles:
+    vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+    vertices.emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+    vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+
+    vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+    vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+    vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+  };
+
+  // TODO: build vertices array here, and filter out things not in window
+
+  draw_rectangle(glm::vec2(200, 0), glm::vec2(10.0f, 10.0f), hl_color);
+  draw_rectangle(glm::vec2(200, 50), glm::vec2(10.0f, 10.0f), hl_color);
+
+  //---- compute transform based on current window ----
+  
+  float hscale = 2.0f / scene_size.x;
+  float vscale = 2.0f / scene_size.y;
+
+  glm::mat4 canvas_to_clip = glm::mat4(
+    glm::vec4(hscale, 0.0f, 0.0f, 0.0f),  
+    glm::vec4(0.0f, vscale, 0.0f, 0.0f),  
+    glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),  
+    glm::vec4(-1.0f - progress * hscale, -1.0f + horizon_height * vscale, 0.0f, 1.0f)
+  );
+
+  //---- actual drawing ----
+
+  //clear the color buffer:
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  //use alpha blending:
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //don't use the depth test:
+  glDisable(GL_DEPTH_TEST);
+
+  //upload vertices to vertex_buffer:
+  glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  //set color_texture_program as current program:
+  glUseProgram(color_texture_program.program);
+
+  //upload OBJECT_TO_CLIP to the proper uniform location:
+  glUniformMatrix4fv(color_texture_program.OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(canvas_to_clip));
+
+  //use the mapping vertex_buffer_for_color_texture_program to fetch vertex data:
+  glBindVertexArray(vertex_buffer_for_color_texture_program);
+
+  //bind the solid white texture to location zero:
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, white_tex);
+
+  //run the OpenGL pipeline:
+  glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
+
+  //unbind the solid white texture:
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  //reset vertex array to none:
+  glBindVertexArray(0);
+
+  //reset current program to none:
+  glUseProgram(0);
+
+  GL_ERRORS(); //did the DrawSprites do something wrong?
 }
