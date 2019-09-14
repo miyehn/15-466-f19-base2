@@ -1,4 +1,4 @@
-#include "StoryMode.hpp"
+#include "GameMode.hpp"
 
 // #include "Sprite.hpp"
 // #include "DrawSprites.hpp"
@@ -12,7 +12,7 @@ Load< Sound::Sample > soundtrack(LoadTagDefault, []() -> Sound::Sample * {
   return new Sound::Sample(data_path("track.wav"));
 });
 
-StoryMode::StoryMode() {
+GameMode::GameMode() {
   //----- allocate OpenGL resources -----
   { //vertex buffer:
     glGenBuffers(1, &vertex_buffer);
@@ -98,9 +98,16 @@ StoryMode::StoryMode() {
 
     GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
   }
+
+  init();
+  background_music = Sound::play(*soundtrack, 1.0f);
 }
 
-StoryMode::~StoryMode() {
+GameMode::~GameMode() {
+  for (auto object : objects) {
+    delete object;
+  }
+
   //----- free OpenGL resources -----
   glDeleteBuffers(1, &vertex_buffer);
   vertex_buffer = 0;
@@ -112,44 +119,15 @@ StoryMode::~StoryMode() {
   white_tex = 0;
 }
 
-bool StoryMode::handle_event(SDL_Event const &, glm::uvec2 const &window_size) {
+bool GameMode::handle_event(SDL_Event const &, glm::uvec2 const &window_size) {
   return false;
 }
 
-void StoryMode::update(float elapsed) {
-  if (!background_music || background_music->stopped) {
-    background_music = Sound::play(*soundtrack, 1.0f);
+void GameMode::draw(glm::uvec2 const &drawable_size) {
+
+  for (auto object : objects) {
+    object->draw_prep();
   }
-  progress += elapsed * progress_speed;
-}
-
-void StoryMode::draw(glm::uvec2 const &drawable_size) {
-  //some nice colors from the course web page:
-  #define HEX_TO_U8VEC4( HX ) (glm::u8vec4( (HX >> 24) & 0xff, (HX >> 16) & 0xff, (HX >> 8) & 0xff, (HX) & 0xff ))
-  const glm::u8vec4 hl_color = HEX_TO_U8VEC4(0xe8a343ff);
-  #undef HEX_TO_U8VEC4
-
-  //---- compute vertices to draw ----
-
-  //vertices will be accumulated into this list and then uploaded+drawn at the end of this function:
-  std::vector< Vertex > vertices;
-
-  //inline helper function for rectangle drawing:
-  auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
-    //split rectangle into two CCW-oriented triangles:
-    vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-    vertices.emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-    vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-
-    vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-    vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-    vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-  };
-
-  // TODO: build vertices array here, and filter out things not in window
-
-  draw_rectangle(glm::vec2(200, 0), glm::vec2(10.0f, 10.0f), hl_color);
-  draw_rectangle(glm::vec2(200, 50), glm::vec2(10.0f, 10.0f), hl_color);
 
   //---- compute transform based on current window ----
   
@@ -206,4 +184,6 @@ void StoryMode::draw(glm::uvec2 const &drawable_size) {
   glUseProgram(0);
 
   GL_ERRORS(); //did the DrawSprites do something wrong?
+
+  vertices = std::vector<Vertex>(); // reset vertices
 }
