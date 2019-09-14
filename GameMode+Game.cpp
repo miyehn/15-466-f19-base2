@@ -49,7 +49,24 @@ void GameMode::update(float elapsed) {
 
 bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
   if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_a) {
-    player->jump();
+
+    // to prevent a...aaaaaaaaaaaaa
+    if (player->key_pressed) return true;
+    // from now on, lock this key (can no longer be pressed) until release
+    player->key_pressed = true;
+
+    // actual handling
+    if (player->on_ground) {
+      player->jump();
+      player->key_pressed_since_jump = true;
+    }
+    return true;
+
+  } else if (evt.type == SDL_KEYUP && evt.key.keysym.sym == SDLK_a) {
+    // unlock this key
+    player->key_pressed = false;
+    player->key_pressed_since_jump = false;
+    return true;
   }
   return false;
 }
