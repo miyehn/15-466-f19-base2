@@ -13,7 +13,13 @@ void GameMode::init() {
     obstacles.push_back(obs);
     objects.push_back(obs);
   }
-
+  
+  // stars
+  for (int i=0; i<4; i++) {
+    Star* star = new Star(vertices, glm::vec2(300 + 150*i, 20), glm::u8vec4(255, 220, 0, 255));
+    stars.push_back(star);
+    objects.push_back(star);
+  }
 }
 
 void GameMode::update(float elapsed) {
@@ -28,11 +34,16 @@ void GameMode::update(float elapsed) {
     if (object->position.x >= min_x && object->position.x <= max_x) object->update(elapsed);
   }
 
-  // collisions
+  // player-obstacle collision
   for (auto obstacle : obstacles) {
     float dist = glm::distance(obstacle->position, player->position);
-    // std::cout << dist << std::endl;
     if (dist < 5.0f) player->deactivate();
+  }
+
+  // player-star collision
+  for (auto star : stars) {
+    float dist = glm::distance(star->position, player->position);
+    if (player->active && dist < 5.0f) star->explode();
   }
 }
 

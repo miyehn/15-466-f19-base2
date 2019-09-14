@@ -171,6 +171,7 @@ GAME_NAMES =
 	Load
   Obstacle
   Player
+  Star
 	;
 
 PACK_SPRITES_NAMES =
