@@ -14,6 +14,7 @@ struct GameMode : Mode {
   virtual void draw(glm::uvec2 const &drawable_size) override;
   // background music
   std::shared_ptr< Sound::PlayingSample > background_music;
+
   //------ game states ------
   glm::vec2 scene_size = glm::vec2(720, 480); // will use this size to fill entire window
   glm::vec2 padding = glm::vec2(40, 10); // outside of this range, things don't get drawn (Q: update?)

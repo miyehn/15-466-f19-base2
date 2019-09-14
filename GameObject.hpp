@@ -14,7 +14,11 @@ struct Vertex {
 static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "GameObject: Vertex should be packed");
 
 struct GameObject {
-  GameObject(std::vector<Vertex> &vertices_) { vertices = &vertices_; }
+  GameObject(std::vector<Vertex> &vertices_, glm::vec2 position_, glm::u8vec4 color_) { 
+    vertices = &vertices_; 
+    position = position_;
+    color = color_;
+  }
   virtual ~GameObject(){}
 
   virtual void update(float elapsed) = 0;
@@ -34,5 +38,8 @@ struct GameObject {
     vertices->emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
   }
 
+  // properties
+  glm::vec2 position;
+  glm::u8vec4 color;
   std::vector<Vertex> *vertices = nullptr; // shared by every object of GameMode
 };

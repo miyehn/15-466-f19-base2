@@ -169,6 +169,8 @@ GAME_NAMES =
 	Mode
 	GL
 	Load
+  Obstacle
+  Player
 	;
 
 PACK_SPRITES_NAMES =
