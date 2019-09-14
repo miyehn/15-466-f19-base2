@@ -119,14 +119,10 @@ GameMode::~GameMode() {
   white_tex = 0;
 }
 
-bool GameMode::handle_event(SDL_Event const &, glm::uvec2 const &window_size) {
-  return false;
-}
-
 void GameMode::draw(glm::uvec2 const &drawable_size) {
 
   for (auto object : objects) {
-    object->draw_prep();
+    if (object->position.x >= min_x && object->position.x <= max_x) object->draw_prep();
   }
 
   //---- compute transform based on current window ----

@@ -42,4 +42,6 @@ struct GameObject {
   glm::vec2 position;
   glm::u8vec4 color;
   std::vector<Vertex> *vertices = nullptr; // shared by every object of GameMode
+
+  float epsilon = 0.001f;
 };

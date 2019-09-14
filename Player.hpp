@@ -8,7 +8,8 @@ struct Player : GameObject {
   void update(float elapsed) override;
   void draw_prep() override;
 
-  // properties
+  // player
   glm::vec2 acceleration;
   glm::vec2 velocity;
+  void jump();
 };

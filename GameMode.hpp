@@ -3,12 +3,14 @@
 #include "Mode.hpp"
 #include "Sound.hpp"
 #include "GameObject.hpp"
+#include "Obstacle.hpp"
+#include "Player.hpp"
 
 struct GameMode : Mode {
   GameMode();
   virtual ~GameMode();
 
-  virtual bool handle_event(SDL_Event const &, glm::uvec2 const &window_size) override;
+  virtual bool handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) override;
   void init();
   virtual void update(float elapsed) override;
   virtual void draw(glm::uvec2 const &drawable_size) override;
@@ -17,14 +19,19 @@ struct GameMode : Mode {
 
   //------ game states ------
   glm::vec2 scene_size = glm::vec2(720, 480); // will use this size to fill entire window
-  glm::vec2 padding = glm::vec2(40, 10); // outside of this range, things don't get drawn (Q: update?)
+  float padding = 40.0f; // outside of this range, things don't get drawn (Q: update?)
   float horizon_height = 200.0f; // how far is the floor from bottom of canvas
   float progress = 0.0f; // how many pixels has the window displaced already
   float progress_speed = 20.0f; // how many pixels does the window displace per second
+  float min_x, max_x;
 
+  // generics
   std::vector<Vertex> vertices = std::vector<Vertex>(); // gets cleared by the end of draw, maybe?
   std::vector<GameObject*> objects = std::vector<GameObject*>();
 
+  // specifics
+  Player* player;
+  std::vector<Obstacle*> obstacles;
 
   //------ OpenGL-related (taken from game0 base code) ------
   
