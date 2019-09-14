@@ -1,9 +1,10 @@
 #include "GameMode.hpp"
+#include <iostream>
 
 void GameMode::init() {
   
   // player
-  player = new Player(vertices, glm::vec2(50, 0), glm::u8vec4(100, 100, 100, 255));
+  player = new Player(vertices, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255));
   objects.push_back(player);
 
   // obstacles
@@ -17,12 +18,21 @@ void GameMode::init() {
 
 void GameMode::update(float elapsed) {
 
+  // update game progress
   progress += elapsed * progress_speed;
   min_x = progress - padding;
   max_x = progress + scene_size.x + padding;
 
+  // update each game object
   for (auto object : objects) {
     if (object->position.x >= min_x && object->position.x <= max_x) object->update(elapsed);
+  }
+
+  // collisions
+  for (auto obstacle : obstacles) {
+    float dist = glm::distance(obstacle->position, player->position);
+    // std::cout << dist << std::endl;
+    if (dist < 5.0f) player->deactivate();
   }
 }
 

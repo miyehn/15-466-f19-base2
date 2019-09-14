@@ -11,16 +11,27 @@ Player::~Player() {
 }
 
 void Player::update(float elapsed) {
+  // motion update
   velocity += acceleration * elapsed;
   position += velocity * elapsed;
   if (position.y<0) position.y = 0; // clamp to ground
 
+  // active status
+  if (!active) {
+    current_inactive_time += elapsed;
+    if (current_inactive_time >= max_inactive_time) active = true;
+  }
 }
 
 void Player::draw_prep() {
-  rect(position, glm::vec2(10, 10), color);
+  rect(position, glm::vec2(10, 10), active ? color : inactive_color);
 }
 
 void Player::jump() {
   velocity = glm::vec2(20, 100); 
+}
+
+void Player::deactivate() {
+  current_inactive_time = 0.0f;
+  active = false;
 }

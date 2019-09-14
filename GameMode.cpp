@@ -100,7 +100,7 @@ GameMode::GameMode() {
   }
 
   init();
-  background_music = Sound::play(*soundtrack, 1.0f);
+  // background_music = Sound::play(*soundtrack, 1.0f);
 }
 
 GameMode::~GameMode() {
