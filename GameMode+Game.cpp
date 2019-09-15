@@ -46,9 +46,13 @@ void GameMode::init() {
 void GameMode::update(float elapsed) {
 
   // update game progress
+  time_since_start += elapsed;
   progress += elapsed * progress_speed;
   min_x = progress - padding;
   max_x = progress + scene_size.x + padding;
+  std::vector<float> measure_n_note = level->get_measure_n_note(time_since_start);
+  std::cout << measure_n_note[0] << ", " << measure_n_note[1] << std::endl;
+  level->update_note_length((int)measure_n_note[0], measure_n_note[1]);
 
   // update each game object
   for (auto object : objects) {

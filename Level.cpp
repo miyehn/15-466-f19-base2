@@ -31,7 +31,7 @@ Level::Level(const std::string &path) {
       tempo_info.push_back(start_measure_cnt);
       tempo_info.push_back(tempo);
     } else if (parse_stage == 1) { // jump height
-      assert(sscanf(line.c_str(), "%f %f", &max_height, &float_height)==2);
+      assert(sscanf(line.c_str(), "%f %f %f", &max_height, &float_height, &speed)==3);
     } else {
       std::cout << line << std::endl;
     }
@@ -41,7 +41,7 @@ Level::Level(const std::string &path) {
   
   /*
    * TODO: either get_note_length or get_measure_n_note is buggy.
-   * The first 60 measures are fine but after that hmm.. uncomment below to test
+   * The first 45 measures are fine but after that hmm.. uncomment below to test
   std::cout << get_time(1, 0.0f) << std::endl;
   std::cout << get_time(2, 0.0f) << std::endl;
   std::cout << get_time(3, 0.0f) << std::endl;
@@ -76,7 +76,7 @@ void Level::update_note_length(int measure, float note) {
 
 // count measure from 1, count note from 0
 float Level::get_note_length(int measure, float note) {
-  assert(measure>0 && note>=0 && note<=4);
+  // assert(measure>0 && note>=-0.01 && note<=4);
   for (int i=0; i<tempo_info.size()-2; i+=2) {
     if (measure >= tempo_info[i] && measure < tempo_info[i+2])
       return 60.0f / tempo_info[i+1];
@@ -88,7 +88,7 @@ float Level::get_note_length(int measure, float note) {
 float Level::get_time(int measure, float note) {
 
   assert(measure>0 && note>=0 && note<=4);
-  float cumulative = time_offset;
+  float cumulative = visual_offset;
 
   for (int i=0; i<tempo_info.size()-2; i+=2) {
     float note_length = 60.0f / tempo_info[i+1];

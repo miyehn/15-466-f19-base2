@@ -7,7 +7,8 @@ struct Level {
   Level(const std::string &path);
   ~Level(){} 
 
-  float time_offset = -0.5829f;
+  float time_offset = -0.0729f; 
+  float visual_offset = -0.5829f;
   
   // start_measure_cnt, tempo, start_measure_cnt, tempo, ...
   std::vector<float> tempo_info = std::vector<float>(); 
@@ -18,6 +19,6 @@ struct Level {
   void update_note_length(int measure, float note);
   float note_length; // updated
 
-  float max_height, float_height; // parsed
+  float max_height, float_height, speed; // parsed
 
 };
