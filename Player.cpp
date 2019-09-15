@@ -31,6 +31,8 @@ void Player::update(float elapsed) {
   if (on_ground || !key_pressed_since_jump) current_fly_time = 0.0f;
   else current_fly_time += elapsed; // not on ground, key pressed since jump
 
+  // shooting
+  if (preparing_shoot) bullet_energy += elapsed;
 }
 
 void Player::draw_prep() {
@@ -44,4 +46,23 @@ void Player::jump() {
 void Player::deactivate() {
   current_inactive_time = 0.0f;
   active = false;
+}
+
+void Player::prepare_shoot() {
+  preparing_shoot = true;
+  // std::cout << "prepare shoot" << std::endl;
+}
+
+Bullet* Player::shoot() {
+  // std::cout << "shoot! energy: " << bullet_energy << std::endl;
+  preparing_shoot = false;
+  Bullet* bullet = new Bullet(*vertices, position, glm::u8vec4(255,255,255,255), bullet_energy); 
+  bullet_energy = 0.0f;
+  return bullet;
+}
+
+void Player::cancel_shoot() {
+  preparing_shoot = false;
+  bullet_energy = 0.0f;
+  // std::cout << "canceled." << std::endl;
 }

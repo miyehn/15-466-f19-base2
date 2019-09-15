@@ -59,13 +59,27 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
     if (player->on_ground) {
       player->jump();
       player->key_pressed_since_jump = true;
+    } else if (player->active) {
+      player->prepare_shoot();
     }
     return true;
 
   } else if (evt.type == SDL_KEYUP && evt.key.keysym.sym == SDLK_a) {
     // unlock this key
     player->key_pressed = false;
+
     player->key_pressed_since_jump = false;
+
+    // shooting
+    if (player->preparing_shoot) {
+      if (player->on_ground) {
+        player->cancel_shoot();
+      } else {
+        Bullet* bullet = player->shoot();
+        bullets.push_back(bullet);
+        objects.push_back(bullet);
+      }
+    }
     return true;
   }
   return false;

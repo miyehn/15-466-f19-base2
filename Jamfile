@@ -172,6 +172,7 @@ GAME_NAMES =
   Obstacle
   Player
   Star
+  Bullet
 	;
 
 PACK_SPRITES_NAMES =
