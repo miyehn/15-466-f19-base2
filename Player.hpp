@@ -23,7 +23,7 @@ struct Player : GameObject {
   // motion status
   float jump_period;
   float horizontal_speed;
-  glm::vec2 acceleration; // TODO
+  glm::vec2 acceleration; 
   glm::vec2 velocity = glm::vec2(0, 0);
 
   // active/inactive due to obstacles
@@ -43,6 +43,7 @@ struct Player : GameObject {
   float current_fly_time = 0.0f;
   float fly_height;
   void jump();
+  float height();
 
   // shooting-related
   bool preparing_shoot = false;

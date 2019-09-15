@@ -24,6 +24,7 @@ struct Level {
   float note_length; // updated
 
   float max_height, float_height, speed; // parsed
+  bool debug, autoplay; // parsed
 
   void update(float elapsed);
 

@@ -25,12 +25,17 @@ Level::Level(const std::string &path) {
     }
 
     // parsing, based on: http://www.cplusplus.com/reference/cstdio/sscanf/
-    if (parse_stage == 0) { // tempo info
+    if (parse_stage == 0) {
+      int d;
+      if (sscanf(line.c_str(), "debug %d", &d)) debug = (bool)d;
+      else if (sscanf(line.c_str(), "autoplay %d", &d)) autoplay = (bool)d;
+      else assert(false);
+    } else if (parse_stage == 1) { // tempo info
       float start_measure_cnt, tempo;
       assert(sscanf(line.c_str(), "%f %f", &start_measure_cnt, &tempo)==2);
       tempo_info.push_back(start_measure_cnt);
       tempo_info.push_back(tempo);
-    } else if (parse_stage == 1) { // jump height
+    } else if (parse_stage == 2) { // jump height
       assert(sscanf(line.c_str(), "%f %f %f", &max_height, &float_height, &speed)==3);
     } else {
       std::cout << line << std::endl;
