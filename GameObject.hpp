@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include "Level.hpp"
 
 //draw functions will work on vectors of vertices, defined as follows:
 struct Vertex {
@@ -14,8 +15,9 @@ struct Vertex {
 static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "GameObject: Vertex should be packed");
 
 struct GameObject {
-  GameObject(std::vector<Vertex> &vertices_, glm::vec2 position_, glm::u8vec4 color_) { 
+  GameObject(std::vector<Vertex> &vertices_, Level *level_, glm::vec2 position_, glm::u8vec4 color_) { 
     vertices = &vertices_; 
+    level = level_;
     position = position_;
     color = color_;
   }
@@ -49,7 +51,10 @@ struct GameObject {
 
   glm::vec2 position;
   glm::u8vec4 color;
+
   std::vector<Vertex> *vertices = nullptr; // shared by every object of GameMode
+  Level *level = nullptr; // has all the tempo info, etc.
+
 
   float epsilon = 0.001f;
 };

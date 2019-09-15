@@ -4,26 +4,26 @@
 void GameMode::init() {
   
   // player
-  player = new Player(vertices, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255), progress_speed);
+  player = new Player(vertices, level, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255), progress_speed);
   objects.push_back(player);
   player->level = this->level;
 
   // obstacles
   for (int i=0; i<5; i++) {
-    Obstacle* obs = new Obstacle(vertices, glm::vec2(200 + 100*i, 0), glm::u8vec4(200, 100, 0, 255));
+    Obstacle* obs = new Obstacle(vertices, level, glm::vec2(200 + 100*i, 0), glm::u8vec4(200, 100, 0, 255));
     obstacles.push_back(obs);
     objects.push_back(obs);
   }
   
   // stars
   for (int i=0; i<4; i++) {
-    Star* star = new Star(vertices, glm::vec2(300 + 150*i, 20), glm::u8vec4(255, 220, 0, 255));
+    Star* star = new Star(vertices, level, glm::vec2(300 + 150*i, 20), glm::u8vec4(255, 220, 0, 255));
     stars.push_back(star);
     objects.push_back(star);
   }
   
   for (int i=0; i<10; i++) {
-    Star* star = new Star(vertices, glm::vec2(100 + 40*i, 50), glm::u8vec4(255, 0, 0, 255));
+    Star* star = new Star(vertices, level, glm::vec2(100 + 40*i, 50), glm::u8vec4(255, 0, 0, 255));
     stars.push_back(star);
     objects.push_back(star);
   }
@@ -31,11 +31,12 @@ void GameMode::init() {
   // targets
   for (int i=0; i<5; i++) {
     if (i==4 || i==0) {
-      Target* target = new Target(vertices, glm::vec2(500 + 80*i, 100), glm::u8vec4(200, 80, 255, 255), 0.2f, true);
+      Target* target = new Target(
+          vertices, level, glm::vec2(500 + 80*i, 100), glm::u8vec4(200, 80, 255, 255), 0.2f, true);
       targets.push_back(target);
       objects.push_back(target);
     } else {
-      Target* target = new Target(vertices, glm::vec2(500 + 80*i, 100), glm::u8vec4(200, 80, 255, 255), 0.0f);
+      Target* target = new Target(vertices, level, glm::vec2(500 + 80*i, 100), glm::u8vec4(200, 80, 255, 255), 0.0f);
       targets.push_back(target);
       objects.push_back(target);
     }

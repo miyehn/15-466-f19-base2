@@ -2,8 +2,8 @@
 
 struct Star : GameObject {
 
-  Star(std::vector<Vertex> &vertices_, glm::vec2 position_, glm::u8vec4 color_) : 
-    GameObject(vertices_, position_, color_) {}
+  Star(std::vector<Vertex> &vertices_, Level *lv_, glm::vec2 position_, glm::u8vec4 color_) : 
+    GameObject(vertices_, lv_, position_, color_) {}
   ~Star() override;
 
   // inherited

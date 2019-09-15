@@ -3,11 +3,12 @@
 struct Target : GameObject {
 
   Target(std::vector<Vertex> &vertices_, 
+      Level *lv_,
       glm::vec2 position_, 
       glm::u8vec4 color_, 
       float energy_ = 0.0f,
       bool destructive_ = false) : 
-    GameObject(vertices_, position_, color_) { energy = energy_; destructive = destructive_;}
+    GameObject(vertices_, lv_, position_, color_) { energy = energy_; destructive = destructive_;}
   ~Target() override;
 
   // inherited

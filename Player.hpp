@@ -5,10 +5,11 @@
 struct Player : GameObject {
   Player(
       std::vector<Vertex> &vertices_, 
+      Level *lv_,
       glm::vec2 position_, 
       glm::u8vec4 color_, 
       float speed) : 
-    GameObject(vertices_, position_, color_) { horizontal_speed = speed; velocity = glm::vec2(speed, 0); }
+    GameObject(vertices_, lv_, position_, color_) { horizontal_speed = speed; velocity = glm::vec2(speed, 0); }
   ~Player() override;
 
   // inherited
