@@ -7,11 +7,10 @@ struct Star : GameObject {
   ~Star() override;
 
   // inherited
-  void update(float elapsed) override;
+  void update(float elapsed, float min_x, float max_x) override;
   void draw_prep() override;
 
   // star-specific
-  bool active = true;
   float radius = 4.0f;
 
   bool exploding = false;

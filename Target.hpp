@@ -11,14 +11,13 @@ struct Target : GameObject {
   ~Target() override;
 
   // inherited
-  void update(float elapsed) override;
+  void update(float elapsed, float min_x, float max_x) override;
   void draw_prep() override;
 
   // target-specific
   float energy = 0.0f;
   bool destructive = false;
 
-  bool active = true;
   float radius = 4.0f;
 
   bool exploding = false;

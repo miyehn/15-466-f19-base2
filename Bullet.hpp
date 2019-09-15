@@ -8,11 +8,10 @@ struct Bullet : GameObject {
   ~Bullet() override;
 
   // inherited
-  void update(float elapsed) override;
+  void update(float elapsed, float min_x, float max_x) override;
   void draw_prep() override;
 
   // bullet-specific
-  bool active = true;
   float energy = 0.0f;
   glm::vec2 velocity = glm::vec2(40, 20);
 };

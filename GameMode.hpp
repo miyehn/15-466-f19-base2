@@ -22,7 +22,7 @@ struct GameMode : Mode {
 
   //------ game states ------
   glm::vec2 scene_size = glm::vec2(720, 480); // will use this size to fill entire window
-  float padding = 40.0f; // outside of this range, things don't get drawn (Q: update?)
+  float padding = 0.0f; // outside of this range, things don't get drawn (Q: update?)
   float horizon_height = 200.0f; // how far is the floor from bottom of canvas
   float progress = 0.0f; // how many pixels has the window displaced already
   float progress_speed = 20.0f; // how many pixels does the window displace per second

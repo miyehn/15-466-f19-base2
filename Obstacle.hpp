@@ -7,7 +7,7 @@ struct Obstacle : GameObject {
   ~Obstacle() override;
 
   // inherited
-  void update(float elapsed) override;
+  void update(float elapsed, float min_x, float max_x) override;
   void draw_prep() override;
 
 };

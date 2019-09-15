@@ -43,7 +43,7 @@ void GameMode::update(float elapsed) {
 
   // update each game object
   for (auto object : objects) {
-    if (object->position.x >= min_x && object->position.x <= max_x) object->update(elapsed);
+    object->update(elapsed, min_x, max_x);
   }
 
   // player-obstacle collision
@@ -62,12 +62,22 @@ void GameMode::update(float elapsed) {
   for (auto bullet : bullets) {
     for (auto target : targets) {
       float dist = glm::distance(bullet->position, target->position);
-      if (target->active && bullet->energy>=target->energy && dist < 5.0f) {
+      if (bullet->energy>=target->energy && dist < 5.0f) {
         target->explode();
-        if (target->destructive) bullet->active = false;
+        if (target->destructive) bullet->dead = true;
       }
     }
   }
+
+  // clean out dead elements
+  for (int i=0; i<objects.size(); i++) {
+    if (objects[i]->dead) { 
+      objects.erase(objects.begin() + i);
+      i--;
+    }
+  }
+
+  // std::cout << objects.size() << std::endl;
 }
 
 bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {

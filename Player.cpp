@@ -8,7 +8,8 @@ Player::Player(std::vector<Vertex> &vertices_, glm::vec2 position_, glm::u8vec4 
 Player::~Player() {
 }
 
-void Player::update(float elapsed) {
+void Player::update(float elapsed, float min_x, float max_x) {
+  GameObject::update(elapsed, min_x, max_x);
 
   // motion update
   if (current_fly_time >= fly_time_threshold) {

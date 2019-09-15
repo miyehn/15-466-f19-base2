@@ -21,7 +21,10 @@ struct GameObject {
   }
   virtual ~GameObject(){}
 
-  virtual void update(float elapsed) = 0;
+  virtual void update(float elapsed, float min_x, float max_x) {
+    this->min_x = min_x;
+    this->max_x = max_x;
+  }
 
   // implement by calling rect(...)
   virtual void draw_prep() = 0;
@@ -29,6 +32,8 @@ struct GameObject {
   void rect(glm::vec2 const &center, 
       glm::vec2 const &radius,
       glm::u8vec4 const &color) {
+    if (center.x+radius.x < min_x || center.x-radius.x > max_x) return;
+
     vertices->emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
     vertices->emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
     vertices->emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
@@ -39,6 +44,9 @@ struct GameObject {
   }
 
   // properties
+  bool dead = false;
+  float min_x, max_x;
+
   glm::vec2 position;
   glm::u8vec4 color;
   std::vector<Vertex> *vertices = nullptr; // shared by every object of GameMode

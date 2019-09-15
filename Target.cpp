@@ -4,9 +4,10 @@
 Target::~Target() {
 }
 
-void Target::update(float elapsed) {
-  if (!active) return;
-  if (current_exploding_time >= max_exploding_time) active = false;
+void Target::update(float elapsed, float min_x, float max_x) {
+  GameObject::update(elapsed, min_x, max_x);
+  if (position.x < min_x) { dead = true; return; }
+  if (current_exploding_time >= max_exploding_time) dead = true;
   if (exploding) {
     current_exploding_time += elapsed;
     radius += 20 * elapsed;
@@ -14,7 +15,6 @@ void Target::update(float elapsed) {
 }
 
 void Target::draw_prep() {
-  if (!active) return;
   if (!exploding) {
     if (destructive) rect(position, glm::vec2(4, 4), color);
     else rect(position, glm::vec2(2, 2), color);
