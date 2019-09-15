@@ -20,6 +20,18 @@ void GameMode::init() {
     stars.push_back(star);
     objects.push_back(star);
   }
+  // targets
+  for (int i=0; i<5; i++) {
+    if (i==4 || i==0) {
+      Target* target = new Target(vertices, glm::vec2(500 + 80*i, 100), glm::u8vec4(200, 80, 255, 255), 0.2f, true);
+      targets.push_back(target);
+      objects.push_back(target);
+    } else {
+      Target* target = new Target(vertices, glm::vec2(500 + 80*i, 100), glm::u8vec4(200, 80, 255, 255), 0.0f);
+      targets.push_back(target);
+      objects.push_back(target);
+    }
+  }
 }
 
 void GameMode::update(float elapsed) {
@@ -44,6 +56,17 @@ void GameMode::update(float elapsed) {
   for (auto star : stars) {
     float dist = glm::distance(star->position, player->position);
     if (player->active && dist < 5.0f) star->explode();
+  }
+
+  // bullet-target collision
+  for (auto bullet : bullets) {
+    for (auto target : targets) {
+      float dist = glm::distance(bullet->position, target->position);
+      if (target->active && bullet->energy>=target->energy && dist < 5.0f) {
+        target->explode();
+        if (target->destructive) bullet->active = false;
+      }
+    }
   }
 }
 

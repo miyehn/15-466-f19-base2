@@ -12,6 +12,7 @@ struct Bullet : GameObject {
   void draw_prep() override;
 
   // bullet-specific
+  bool active = true;
   float energy = 0.0f;
   glm::vec2 velocity = glm::vec2(40, 20);
 };

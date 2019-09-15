@@ -7,6 +7,7 @@
 #include "Player.hpp"
 #include "Star.hpp"
 #include "Bullet.hpp"
+#include "Target.hpp"
 
 struct GameMode : Mode {
   GameMode();
@@ -36,6 +37,7 @@ struct GameMode : Mode {
   std::vector<Obstacle*> obstacles;
   std::vector<Star*> stars;
   std::vector<Bullet*> bullets;
+  std::vector<Target*> targets;
 
   //------ OpenGL-related (taken from game0 base code) ------
   

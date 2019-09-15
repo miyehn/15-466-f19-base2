@@ -173,6 +173,7 @@ GAME_NAMES =
   Player
   Star
   Bullet
+  Target
 	;
 
 PACK_SPRITES_NAMES =
