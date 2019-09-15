@@ -68,6 +68,7 @@ Level::Level(const std::string &path) {
   res = get_measure_n_note(294.476);
   std::cout << res[0] << ", " << res[1] << std::endl;
   */
+  update_note_length(1, 0.0f);
 }
 
 void Level::update_note_length(int measure, float note) {
@@ -143,3 +144,10 @@ std::vector<float> Level::get_measure_n_note(float time) {
   return {measure_cnt_int, note_cnt};
 }
 
+void Level::update(float elapsed) {
+  timer += elapsed;
+  std::vector<float> measure_n_note = get_measure_n_note(timer);
+  update_note_length((int)measure_n_note[0], measure_n_note[1]);
+  // std::cout << measure_n_note[0] << ", " << measure_n_note[1] << std::endl;
+
+}

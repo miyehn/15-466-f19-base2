@@ -2,9 +2,10 @@
 #include <iostream>
 
 void GameMode::init() {
+  assert(level != nullptr);
   
   // player
-  player = new Player(vertices, level, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255), progress_speed);
+  player = new Player(vertices, level, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255));
   objects.push_back(player);
   player->level = this->level;
 
@@ -47,12 +48,12 @@ void GameMode::update(float elapsed) {
 
   // update game progress
   time_since_start += elapsed;
-  progress += elapsed * progress_speed;
+  progress += elapsed * level->speed;
+
   min_x = progress - padding;
   max_x = progress + scene_size.x + padding;
-  std::vector<float> measure_n_note = level->get_measure_n_note(time_since_start);
-  std::cout << measure_n_note[0] << ", " << measure_n_note[1] << std::endl;
-  level->update_note_length((int)measure_n_note[0], measure_n_note[1]);
+
+  level->update(elapsed);
 
   // update each game object
   for (auto object : objects) {

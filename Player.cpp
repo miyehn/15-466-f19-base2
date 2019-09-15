@@ -2,17 +2,39 @@
 #include <iostream>
 #include <glm/gtc/constants.hpp>
 
+Player::Player(std::vector<Vertex> &vertices_, Level *lv_, glm::vec2 position_, glm::u8vec4 color_) : 
+    GameObject(vertices_, lv_, position_, color_) { 
+
+  four_pi_sq = glm::pow<float>(glm::pi<float>(), 2) * 4.0f;
+  horizontal_speed = level->speed; 
+  velocity = glm::vec2(level->speed, 0); 
+  jump_period = level->note_length * 2.0f;
+  fly_height = level->float_height;
+  gravity = glm::vec2(0, -8.0f * level->max_height / jump_period / jump_period);
+  acceleration = gravity;
+  jump_thrust = glm::vec2(level->speed, -gravity.y * jump_period / 2.0f);
+  fly_time_threshold = jump_period / 2.0f;
+}
+
 Player::~Player() {
 }
 
 void Player::update(float elapsed, float min_x, float max_x) {
   GameObject::update(elapsed, min_x, max_x);
 
+  // update constants from level
+  jump_period = level->note_length * 2.0f;
+  fly_height = level->float_height;
+  gravity = glm::vec2(0, -8.0f * level->max_height / jump_period / jump_period);
+  acceleration = gravity;
+  jump_thrust = glm::vec2(level->speed, -gravity.y * jump_period / 2.0f);
+  fly_time_threshold = jump_period / 2.0f;
+
   // motion update
   if (current_fly_time >= fly_time_threshold) {
-    acceleration = glm::vec2(0, (25.5f - position.y) * glm::pow<float>(glm::pi<float>(), 2) * 4.0f);
+    acceleration = glm::vec2(0, (fly_height - position.y) * four_pi_sq / jump_period / jump_period);
   } else {
-    acceleration = glm::vec2(0, -400);
+    acceleration = gravity;
   }
   velocity += acceleration * elapsed;
   position += velocity * elapsed;
@@ -52,7 +74,7 @@ void Player::draw_prep() {
 }
 
 void Player::jump() {
-  velocity = glm::vec2(horizontal_speed, 200); // TODO
+  velocity = jump_thrust;// glm::vec2(horizontal_speed, 200); // TODO
 }
 
 void Player::deactivate() {
