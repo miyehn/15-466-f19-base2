@@ -12,6 +12,12 @@ Load< Sound::Sample > soundtrack(LoadTagDefault, []() -> Sound::Sample * {
   return new Sound::Sample(data_path("track.wav"));
 });
 
+Level *level_from_file = nullptr;
+Load< Level > level_load_from_file(LoadTagDefault, []() -> Level * {
+  level_from_file = new Level(data_path("level"));
+  return level_from_file;
+});
+
 GameMode::GameMode() {
   //----- allocate OpenGL resources -----
   { //vertex buffer:
@@ -99,6 +105,7 @@ GameMode::GameMode() {
     GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
   }
 
+  level = level_from_file;
   init();
   // background_music = Sound::play(*soundtrack, 1.0f);
 }

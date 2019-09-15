@@ -1,9 +1,6 @@
 #include "Player.hpp"
 #include <iostream>
-
-Player::Player(std::vector<Vertex> &vertices_, glm::vec2 position_, glm::u8vec4 color_) : 
-  GameObject(vertices_, position_, color_) {
-}
+#include <glm/gtc/constants.hpp>
 
 Player::~Player() {
 }
@@ -13,9 +10,9 @@ void Player::update(float elapsed, float min_x, float max_x) {
 
   // motion update
   if (current_fly_time >= fly_time_threshold) {
-    acceleration = glm::vec2(0, (20.0f - position.y) * 20.0f);
+    acceleration = glm::vec2(0, (25.5f - position.y) * glm::pow<float>(glm::pi<float>(), 2) * 4.0f);
   } else {
-    acceleration = glm::vec2(0, -200);
+    acceleration = glm::vec2(0, -400);
   }
   velocity += acceleration * elapsed;
   position += velocity * elapsed;
@@ -41,7 +38,7 @@ void Player::draw_prep() {
 }
 
 void Player::jump() {
-  velocity = glm::vec2(20, 100); 
+  velocity = glm::vec2(horizontal_speed, 200); // TODO
 }
 
 void Player::deactivate() {
@@ -57,7 +54,8 @@ void Player::prepare_shoot() {
 Bullet* Player::shoot() {
   // std::cout << "shoot! energy: " << bullet_energy << std::endl;
   preparing_shoot = false;
-  Bullet* bullet = new Bullet(*vertices, position, glm::u8vec4(255,255,255,255), bullet_energy); 
+  Bullet* bullet = new Bullet(
+      *vertices, position, glm::u8vec4(255,255,255,255), bullet_energy, horizontal_speed); 
   bullet_energy = 0.0f;
   return bullet;
 }

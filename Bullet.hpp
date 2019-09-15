@@ -3,8 +3,8 @@
 
 struct Bullet : GameObject {
 
-  Bullet(std::vector<Vertex> &vertices_, glm::vec2 position_, glm::u8vec4 color_, float energy_) : 
-    GameObject(vertices_, position_, color_) { energy = energy_; }
+  Bullet(std::vector<Vertex> &vertices_, glm::vec2 position_, glm::u8vec4 color_, float energy_, float speed) : 
+    GameObject(vertices_, position_, color_) { energy = energy_; velocity = glm::vec2(speed*2, speed); }
   ~Bullet() override;
 
   // inherited
@@ -13,5 +13,5 @@ struct Bullet : GameObject {
 
   // bullet-specific
   float energy = 0.0f;
-  glm::vec2 velocity = glm::vec2(40, 20);
+  glm::vec2 velocity = glm::vec2(0, 0);
 };

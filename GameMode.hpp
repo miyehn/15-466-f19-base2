@@ -2,6 +2,8 @@
 #include "GL.hpp"
 #include "Mode.hpp"
 #include "Sound.hpp"
+#include "Level.hpp"
+
 #include "GameObject.hpp"
 #include "Obstacle.hpp"
 #include "Player.hpp"
@@ -19,13 +21,14 @@ struct GameMode : Mode {
   virtual void draw(glm::uvec2 const &drawable_size) override;
   // background music
   std::shared_ptr< Sound::PlayingSample > background_music;
+  Level *level = nullptr;
 
   //------ game states ------
   glm::vec2 scene_size = glm::vec2(720, 480); // will use this size to fill entire window
   float padding = 0.0f; // outside of this range, things don't get drawn (Q: update?)
   float horizon_height = 200.0f; // how far is the floor from bottom of canvas
   float progress = 0.0f; // how many pixels has the window displaced already
-  float progress_speed = 20.0f; // how many pixels does the window displace per second
+  float progress_speed = 40.0f; // how many pixels does the window displace per second
   float min_x, max_x;
 
   // generics

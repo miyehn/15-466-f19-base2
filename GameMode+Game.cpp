@@ -4,7 +4,7 @@
 void GameMode::init() {
   
   // player
-  player = new Player(vertices, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255));
+  player = new Player(vertices, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255), progress_speed);
   objects.push_back(player);
 
   // obstacles
@@ -20,6 +20,13 @@ void GameMode::init() {
     stars.push_back(star);
     objects.push_back(star);
   }
+  
+  for (int i=0; i<10; i++) {
+    Star* star = new Star(vertices, glm::vec2(100 + 40*i, 50), glm::u8vec4(255, 0, 0, 255));
+    stars.push_back(star);
+    objects.push_back(star);
+  }
+
   // targets
   for (int i=0; i<5; i++) {
     if (i==4 || i==0) {

@@ -2,7 +2,12 @@
 #include "Bullet.hpp"
 
 struct Player : GameObject {
-  Player(std::vector<Vertex> &vertices_, glm::vec2 position_, glm::u8vec4 color_);
+  Player(
+      std::vector<Vertex> &vertices_, 
+      glm::vec2 position_, 
+      glm::u8vec4 color_, 
+      float speed) : 
+    GameObject(vertices_, position_, color_) { horizontal_speed = speed; velocity = glm::vec2(speed, 0); }
   ~Player() override;
 
   // inherited
@@ -16,8 +21,9 @@ struct Player : GameObject {
   bool key_pressed_since_jump = false;
 
   // motion status
-  glm::vec2 acceleration = glm::vec2(0, -200);
-  glm::vec2 velocity = glm::vec2(20, 0);
+  float horizontal_speed = 0.0f;
+  glm::vec2 acceleration = glm::vec2(0, -200); // TODO
+  glm::vec2 velocity = glm::vec2(0, 0);
 
   // active/inactive due to obstacles
   bool active = true;
@@ -28,7 +34,7 @@ struct Player : GameObject {
 
   // jump/float due to short/long press
   bool on_ground = true;
-  float fly_time_threshold = 0.5f;
+  float fly_time_threshold = 0.5f; // TODO: should be half of t0
   float current_fly_time = 0.0f;
   void jump();
 
