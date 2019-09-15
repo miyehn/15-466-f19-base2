@@ -1,5 +1,6 @@
 #include "Level.hpp"
 #include <fstream>
+#include <glm/glm.hpp>
 
 Level::Level(const std::string &path) {
 
@@ -38,6 +39,9 @@ Level::Level(const std::string &path) {
   }
   std::cout << "---- done ----" << std::endl;
   
+  /*
+   * TODO: either get_note_length or get_measure_n_note is buggy.
+   * The first 60 measures are fine but after that hmm.. uncomment below to test
   std::cout << get_time(1, 0.0f) << std::endl;
   std::cout << get_time(2, 0.0f) << std::endl;
   std::cout << get_time(3, 0.0f) << std::endl;
@@ -63,7 +67,7 @@ Level::Level(const std::string &path) {
   std::cout << res[0] << ", " << res[1] << std::endl;
   res = get_measure_n_note(294.476);
   std::cout << res[0] << ", " << res[1] << std::endl;
-  
+  */
 }
 
 void Level::update_note_length(int measure, float note) {
@@ -84,7 +88,7 @@ float Level::get_note_length(int measure, float note) {
 float Level::get_time(int measure, float note) {
 
   assert(measure>0 && note>=0 && note<=4);
-  float cumulative = -0.5829f;
+  float cumulative = time_offset;
 
   for (int i=0; i<tempo_info.size()-2; i+=2) {
     float note_length = 60.0f / tempo_info[i+1];
@@ -103,7 +107,7 @@ float Level::get_time(int measure, float note) {
 
 // count measure from 1, count note from 0
 std::vector<float> Level::get_measure_n_note(float time) {
-  float cumulative = time + 0.5829f;
+  float cumulative = time - time_offset;
   float measure_cnt = 1.0f;
   float cumulative_section_length = 0.0f;
   for (int i=0; i<tempo_info.size()-2; i+=2) {
@@ -111,12 +115,16 @@ std::vector<float> Level::get_measure_n_note(float time) {
     float note_length = 60.0f / tempo_info[i+1];
     float note_length_4 = 4 * note_length;
     float section_length = (tempo_info[i+2] - tempo_info[i]) * note_length_4;
-    if (cumulative <= cumulative_section_length) {
+    if (cumulative <= cumulative_section_length + section_length) {
       while (cumulative - cumulative_section_length >= note_length_4) {
         cumulative -= note_length_4;
         measure_cnt++;
       }
-      return {measure_cnt, (cumulative - cumulative_section_length) / note_length};
+      float measure_cnt_int = glm::floor(measure_cnt);
+      float resid_add_to_note = (measure_cnt - measure_cnt_int) * note_length;
+      float note_cnt = resid_add_to_note + 
+        (cumulative - cumulative_section_length) / note_length;
+      return {measure_cnt_int, note_cnt};
     }
     cumulative_section_length += section_length;
   }
@@ -128,6 +136,10 @@ std::vector<float> Level::get_measure_n_note(float time) {
     cumulative -= note_length_4;
     measure_cnt++;
   }
-  return {measure_cnt, (cumulative - cumulative_section_length) / note_length};
+  float measure_cnt_int = glm::floor(measure_cnt);
+  float resid_add_to_note = (measure_cnt - measure_cnt_int) * note_length;
+  float note_cnt = resid_add_to_note + 
+    (cumulative - cumulative_section_length) / note_length;
+  return {measure_cnt_int, note_cnt};
 }
 

@@ -6,6 +6,8 @@
 struct Level {
   Level(const std::string &path);
   ~Level(){} 
+
+  float time_offset = -0.5829f;
   
   // start_measure_cnt, tempo, start_measure_cnt, tempo, ...
   std::vector<float> tempo_info = std::vector<float>(); 
