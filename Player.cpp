@@ -34,6 +34,17 @@ void Player::update(float elapsed, float min_x, float max_x) {
 }
 
 void Player::draw_prep() {
+  glm::u8vec4 tmp_col(80, 80, 80, 255);
+  for (int i=1; i<=165; i++) {
+    float x0 = level->get_time(i, 0.0f) * horizontal_speed;
+    float x1 = level->get_time(i, 1.0f) * horizontal_speed;
+    float x2 = level->get_time(i, 2.0f) * horizontal_speed;
+    float x3 = level->get_time(i, 3.0f) * horizontal_speed;
+    rect(glm::vec2(x0,0), glm::vec2(1, 100), tmp_col);
+    rect(glm::vec2(x1,0), glm::vec2(0.5, 100), tmp_col);
+    rect(glm::vec2(x2,0), glm::vec2(0.5, 100), tmp_col);
+    rect(glm::vec2(x3,0), glm::vec2(0.5, 100), tmp_col);
+  }
   rect(position, glm::vec2(10, 10), active ? color : inactive_color);
 }
 
@@ -48,11 +59,9 @@ void Player::deactivate() {
 
 void Player::prepare_shoot() {
   preparing_shoot = true;
-  // std::cout << "prepare shoot" << std::endl;
 }
 
 Bullet* Player::shoot() {
-  // std::cout << "shoot! energy: " << bullet_energy << std::endl;
   preparing_shoot = false;
   Bullet* bullet = new Bullet(
       *vertices, position, glm::u8vec4(255,255,255,255), bullet_energy, horizontal_speed); 
@@ -63,5 +72,4 @@ Bullet* Player::shoot() {
 void Player::cancel_shoot() {
   preparing_shoot = false;
   bullet_energy = 0.0f;
-  // std::cout << "canceled." << std::endl;
 }

@@ -1,5 +1,6 @@
 #include "GameObject.hpp"
 #include "Bullet.hpp"
+#include "Level.hpp"
 
 struct Player : GameObject {
   Player(
@@ -15,6 +16,8 @@ struct Player : GameObject {
   void draw_prep() override;
 
   //---- player ----
+
+  Level *level = nullptr;
 
   // control status
   bool key_pressed = false;

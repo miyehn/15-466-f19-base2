@@ -38,12 +38,13 @@ Level::Level(const std::string &path) {
   /*
   std::cout << get_time(1, 0.0f) << std::endl;
   std::cout << get_time(2, 0.0f) << std::endl;
+  std::cout << get_time(3, 0.0f) << std::endl;
   std::cout << get_time(26, 0.0f) << std::endl;
   std::cout << get_time(28, 0.0f) << std::endl;
   std::cout << get_time(45, 2.0f) << std::endl;
   std::cout << get_time(62, 0.0f) << std::endl;
+  std::cout << get_time(165, 0.0f) << std::endl;
   */
-
 }
 
 // count measure from 1, count note from 0

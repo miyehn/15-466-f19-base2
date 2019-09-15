@@ -6,6 +6,7 @@ void GameMode::init() {
   // player
   player = new Player(vertices, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255), progress_speed);
   objects.push_back(player);
+  player->level = this->level;
 
   // obstacles
   for (int i=0; i<5; i++) {
