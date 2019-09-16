@@ -8,7 +8,11 @@ struct Target : GameObject {
       glm::u8vec4 color_, 
       float energy_ = 0.0f,
       bool destructive_ = false) : 
-    GameObject(vertices_, lv_, position_, color_) { energy = energy_; destructive = destructive_;}
+    GameObject(vertices_, lv_, position_, color_) { 
+      energy = energy_; 
+      destructive = destructive_;
+      max_exploding_time = destructive ? level->note_length*2 : level->note_length/2.0f;
+    }
   ~Target() override;
 
   // inherited
@@ -22,7 +26,7 @@ struct Target : GameObject {
   float radius = 4.0f;
 
   bool exploding = false;
-  float max_exploding_time = 1.0f;
+  float max_exploding_time = 0.0f;
   float current_exploding_time = 0.0f;
   void explode();
 };

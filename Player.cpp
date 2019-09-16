@@ -29,7 +29,7 @@ void Player::update(float elapsed, float min_x, float max_x) {
   // update constants from level change
   jump_period = level->note_length * 2.0f;
   fly_height = level->float_height;
-  gravity = glm::vec2(0, -8.0f * level->max_height / jump_period / jump_period);
+  if (!in_doublejump) gravity = glm::vec2(0, -8.0f * level->max_height / jump_period / jump_period);
   acceleration = gravity;
   jump_thrust = glm::vec2(level->speed, -gravity.y * jump_period / 2.0f);
   fly_time_threshold = jump_period / 2.0f;
@@ -52,7 +52,10 @@ void Player::update(float elapsed, float min_x, float max_x) {
 
   // fly time update
   on_ground = position.y < epsilon;
-  if (on_ground) current_fly_time = 0.0f;
+  if (on_ground) {
+    current_fly_time = 0.0f;
+    in_doublejump = false;
+  }
   else current_fly_time += elapsed; // not on ground, key pressed since jump
 
   // shooting
@@ -73,6 +76,9 @@ void Player::draw_prep() {
       rect(glm::vec2(x1,50), glm::vec2(0.5, 49), tmp_col);
       rect(glm::vec2(x2,50), glm::vec2(0.5, 49), tmp_col);
       rect(glm::vec2(x3,50), glm::vec2(0.5, 49), tmp_col);
+    }
+    if (in_doublejump) {
+      rect(glm::vec2(position.x, height_since_takeoff(current_fly_time)), glm::vec2(100, 1), tmp_col);
     }
   }
 
@@ -106,7 +112,12 @@ void Player::cancel_shoot() {
 }
 
 float Player::height_since_takeoff(float t, float release_t) {
-  if (t<release_t && t >= fly_time_threshold){ // floating
+  if (in_doublejump) {
+    float doublejump_period = level->note_length * 4.0f;
+    float v0 = -gravity.y * doublejump_period / 2.0f;
+    float g = gravity.y;
+    return v0*t + g * t*t / 2.0f;
+  } else if (t<release_t && t >= fly_time_threshold){ // floating
     float period = (t/jump_period) * glm::two_pi<float>();
     return fly_height + (fly_height - level->max_height) * glm::cos(period);
   } else if (release_t <= fly_time_threshold) { // during take off or falling off, never floated
@@ -123,4 +134,12 @@ float Player::height_since_takeoff(float t, float release_t) {
   } else {
     return 0.0f;
   }
+}
+
+void Player::doublejump() {
+  if (in_doublejump || !on_ground) return;
+  in_doublejump = true;
+  float doublejump_period = level->note_length * 4.0f;
+  gravity = glm::vec2(0, -8.0f * level->max_height*1.5f / doublejump_period / doublejump_period);
+  velocity = glm::vec2(level->speed, -gravity.y * doublejump_period / 2.0f);
 }

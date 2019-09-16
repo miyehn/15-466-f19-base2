@@ -35,6 +35,7 @@ struct Player : GameObject {
 
   // jump/float due to short/long press
   bool on_ground = true;
+  bool in_doublejump = false;
   glm::vec2 jump_thrust;
   glm::vec2 gravity;
 
@@ -43,6 +44,7 @@ struct Player : GameObject {
   float current_fly_time = 0.0f;
   float fly_height;
   void jump();
+  void doublejump(); // invoked from MasterMode only
   float height_since_takeoff(float t, float release_t = -1.0f);
 
   // shooting-related

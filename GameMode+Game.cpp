@@ -148,6 +148,7 @@ void GameMode::update(float elapsed) {
 }
 
 bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
+  if (player->in_doublejump) return true;
   if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == key) {
 
     // to prevent a...aaaaaaaaaaaaa

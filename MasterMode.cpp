@@ -50,5 +50,11 @@ void MasterMode::draw(glm::uvec2 const &drawable_size) {
 }
 
 bool MasterMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
+
+  if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_SPACE) { // TODO: change trigger to synced timing? how?
+    left->player->doublejump();
+    right->player->doublejump();
+    return true;
+  }
   return left->handle_event(evt, window_size) || right->handle_event(evt, window_size);
 }
