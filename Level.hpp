@@ -16,6 +16,7 @@ struct Level {
   
   // start_measure_cnt, tempo, start_measure_cnt, tempo, ...
   std::vector<float> tempo_info = std::vector<float>(); 
+  std::vector<std::string> level_info = std::vector<std::string>();
   float get_time(int measure, float note);
   std::vector<float> get_measure_n_note(float time);
 

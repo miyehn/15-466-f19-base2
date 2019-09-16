@@ -3,6 +3,10 @@
 
 void GameMode::init() {
   assert(level != nullptr);
+
+  for (auto line : level->level_info) {
+    std::cout << line << std::endl;
+  }
   
   // player
   player = new Player(vertices, level, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255));
@@ -41,6 +45,16 @@ void GameMode::init() {
       targets.push_back(target);
       objects.push_back(target);
     }
+  }
+
+  // testing - looks good now.
+  for (int i=0; i<40; i++) {
+    Target* t = new Target(vertices, level, glm::vec2(
+          200 + i*level->note_length/4.0f*level->speed, 
+          player->height_since_takeoff(i*level->note_length/4.0f, level->note_length * 7)),
+        glm::u8vec4(100,255,100,255), 0.0f);
+    targets.push_back(t);
+    objects.push_back(t);
   }
 }
 

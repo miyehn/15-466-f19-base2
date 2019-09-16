@@ -2,11 +2,13 @@
 #include <iostream>
 #include <glm/gtc/constants.hpp>
 
+/* lmao throw back to high school calc and kinematics... 
+ * found some math help from: https://courses.lumenlearning.com/boundless-physics/chapter/periodic-motion/
+ */
+
 Player::Player(std::vector<Vertex> &vertices_, Level *lv_, glm::vec2 position_, glm::u8vec4 color_) : 
     GameObject(vertices_, lv_, position_, color_) { 
 
-  // lmao throw back to high school calc and kinematics... 
-  // some math help from: https://courses.lumenlearning.com/boundless-physics/chapter/periodic-motion/
   four_pi_sq = glm::pow<float>(glm::pi<float>(), 2) * 4.0f;
   horizontal_speed = level->speed; 
   velocity = glm::vec2(level->speed, 0); 
@@ -33,7 +35,7 @@ void Player::update(float elapsed, float min_x, float max_x) {
   fly_time_threshold = jump_period / 2.0f;
 
   // motion update
-  if (current_fly_time >= fly_time_threshold) {
+  if (key_pressed && current_fly_time >= fly_time_threshold) {
     acceleration = glm::vec2(0, (fly_height - position.y) * four_pi_sq / jump_period / jump_period);
   } else {
     acceleration = gravity;
@@ -50,7 +52,7 @@ void Player::update(float elapsed, float min_x, float max_x) {
 
   // fly time update
   on_ground = position.y < epsilon;
-  if (on_ground || !key_pressed_since_jump) current_fly_time = 0.0f;
+  if (on_ground) current_fly_time = 0.0f;
   else current_fly_time += elapsed; // not on ground, key pressed since jump
 
   // shooting
@@ -62,7 +64,7 @@ void Player::draw_prep() {
   if (level->debug) {
     // draw measure bars for debug
     glm::u8vec4 tmp_col(80, 80, 80, 255);
-    glm::u8vec4 magenta(255,0,255,255);
+    //glm::u8vec4 magenta(255,0,255,255);
     for (int i=1; i<=165; i++) {
       float x0 = level->get_time(i, 0.0f) * horizontal_speed;
       float x1 = level->get_time(i, 1.0f) * horizontal_speed;
@@ -72,10 +74,6 @@ void Player::draw_prep() {
       rect(glm::vec2(x1,0), glm::vec2(0.5, 100), tmp_col);
       rect(glm::vec2(x2,0), glm::vec2(0.5, 100), tmp_col);
       rect(glm::vec2(x3,0), glm::vec2(0.5, 100), tmp_col);
-    }
-    if (!on_ground) {
-      rect(glm::vec2(position.x, height()),
-          glm::vec2(20,0.5), magenta);
     }
   }
 
@@ -108,15 +106,22 @@ void Player::cancel_shoot() {
   bullet_energy = 0.0f;
 }
 
-float Player::height() {
-  if (on_ground) return 0.0f;
-  else if (current_fly_time <= fly_time_threshold) {
-    float t = current_fly_time;
+float Player::height_since_takeoff(float t, float release_t) {
+  if (t<release_t && t >= fly_time_threshold){ // floating
+    float period = (t/jump_period) * glm::two_pi<float>();
+    return fly_height + (fly_height - level->max_height) * glm::cos(period);
+  } else if (release_t <= fly_time_threshold) { // during take off or falling off, never floated
     float v0 = jump_thrust.y;
     float g = gravity.y;
     return v0*t + g * t*t / 2.0f;
+  } else if (release_t >=0) { // falling after floating
+    float release_h = height_since_takeoff(release_t, release_t + epsilon);
+    float dt = t - release_t;
+    float period = (t/jump_period) * glm::two_pi<float>();
+    float v0 = (fly_height - level->max_height) * glm::sin(period); 
+    float g = gravity.y;
+    return release_h + v0*dt + g * dt*dt / 2.0f;
   } else {
-    float period = (current_fly_time/jump_period) * glm::two_pi<float>();
-    return fly_height + (fly_height - level->max_height) * glm::cos(period);
+    return 0.0f;
   }
 }

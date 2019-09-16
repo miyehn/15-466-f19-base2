@@ -43,7 +43,7 @@ struct Player : GameObject {
   float current_fly_time = 0.0f;
   float fly_height;
   void jump();
-  float height();
+  float height_since_takeoff(float t, float release_t = -1.0f);
 
   // shooting-related
   bool preparing_shoot = false;
