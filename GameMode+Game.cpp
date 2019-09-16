@@ -14,7 +14,7 @@ void GameMode::init() {
   int measure_cnt = 0; 
   float note_cnt = 0.0f;
   float release_n = 0.0f;
-  float shooting_pos_x, shooting_pos_h, bullet_energy = 0.0f;
+  float shooting_pos_x, shooting_pos_h, max_bullet_energy = 0.0f;
   bool in_jump = false;
   bool in_shoot = false;
   // ok to scan into
@@ -22,6 +22,7 @@ void GameMode::init() {
   float r_n = 0.0f; // release offset note parsed from same line as jump
   float offset_n = 0.0f; // parsed from inside jump or shoot, note offset since last abs time
   float shoot_n = 0.0f; // parsed from inside shoot, shooting time as note offset since last abs time
+  float energy_n = 0.0f; // parsed with target (whether destructive or not)
 
   for (auto line : level->level_info) {
     const char* l = line.c_str();
@@ -29,7 +30,7 @@ void GameMode::init() {
 
     // parse level info from input
 
-    //---- jumping ----
+    //---- begin & end jump ----
     if (sscanf(l, "%d %f jump +%f", &m, &n, &r_n)==3) { // absolute timing
       in_jump = true;
       measure_cnt = m; note_cnt = n; release_n = r_n;
@@ -55,7 +56,7 @@ void GameMode::init() {
       stars.push_back(star);
       objects.push_back(star);
 
-    //---- shooting ----
+    //---- begin & end shooting ----
     } else if (sscanf(l, "  +%f prepare +%f", &offset_n, &shoot_n)==2 && 
         line.substr(line.length()-6,6)==" shoot") {
       assert(in_jump && !in_shoot);
@@ -64,46 +65,36 @@ void GameMode::init() {
       while (n >= 4) { m++; n-=4; }
       shooting_pos_x = level->speed * level->get_time(m, n);
       shooting_pos_h = player->height_since_takeoff(shoot_n * level->note_length, release_n * level->note_length);
-      bullet_energy = (shoot_n-offset_n) * level->note_length;
+      max_bullet_energy = (shoot_n-offset_n) * level->note_length;
 
     } else if (line=="  end shoot") {
       in_shoot = false;
 
+    //---- shooting ----
+    } else if (sscanf(l, "    +%f >%f", &offset_n, &energy_n)==2) {
+      assert(in_jump && in_shoot);
+      float e = energy_n * level->note_length;
+      if (e > max_bullet_energy) 
+        std::cout << "WARNING: target requires more energy than max bullet energy" << std::endl;
+      float d = player->horizontal_speed * offset_n*level->note_length;
+      float bx = shooting_pos_x + d*2;
+      float bh = shooting_pos_h + d;
+      if (line.substr(line.length()-7,7)==" target") {
+        Target* target = new Target(vertices, level, glm::vec2(bx, bh), glm::u8vec4(200, 80, 255, 255), e);
+        targets.push_back(target);
+        objects.push_back(target);
+      } else if (line.substr(line.length()-12,12)==" destructive") {
+        Target* destr = new Target(vertices, level, glm::vec2(bx, bh), glm::u8vec4(200, 80, 255, 255), e, true);
+        targets.push_back(destr);
+        objects.push_back(destr);
+      }
     } else {
       std::cout << "parse failed!" << std::endl;
-
     }
 
   }
   assert(!in_jump);
   assert(!in_shoot);
-  
-  /*
-
-  // targets
-  for (int i=0; i<5; i++) {
-    if (i==4 || i==0) {
-      Target* target = new Target(
-          vertices, level, glm::vec2(500 + 80*i, 100), glm::u8vec4(200, 80, 255, 255), 0.2f, true);
-      targets.push_back(target);
-      objects.push_back(target);
-    } else {
-      Target* target = new Target(vertices, level, glm::vec2(500 + 80*i, 100), glm::u8vec4(200, 80, 255, 255), 0.0f);
-      targets.push_back(target);
-      objects.push_back(target);
-    }
-  }
-
-  // testing - looks good now.
-  for (int i=0; i<40; i++) {
-    Target* t = new Target(vertices, level, glm::vec2(
-          200 + i*level->note_length/4.0f*level->speed, 
-          player->height_since_takeoff(i*level->note_length/4.0f, level->note_length * 7)),
-        glm::u8vec4(100,255,100,255), 0.0f);
-    targets.push_back(t);
-    objects.push_back(t);
-  }
-  */
 }
 
 void GameMode::update(float elapsed) {

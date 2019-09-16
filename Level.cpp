@@ -6,10 +6,9 @@ Level::Level(const std::string &path) {
 
   std::ifstream infile(path);
   std::string line;
-  std::cout << "---- loading level from file... ----" << std::endl;
   // https://stackoverflow.com/questions/7868936/read-file-line-by-line-using-ifstream-in-c
   int lines_count = 0;
-  int parse_stage = 0; // 0: tempo; 1: ...
+  int parse_stage = 0; 
   while (std::getline(infile, line)) {
     lines_count++;
 
@@ -48,37 +47,11 @@ Level::Level(const std::string &path) {
     }
 
   }
-  std::cout << "---- done ----" << std::endl;
   
   /*
    * TODO: either get_note_length or get_measure_n_note is buggy.
-   * The first 45 measures are fine but after that hmm.. uncomment below to test
-  std::cout << get_time(1, 0.0f) << std::endl;
-  std::cout << get_time(2, 0.0f) << std::endl;
-  std::cout << get_time(3, 0.0f) << std::endl;
-  std::cout << get_time(26, 0.0f) << std::endl;
-  std::cout << get_time(28, 0.0f) << std::endl;
-  std::cout << get_time(45, 2.0f) << std::endl;
-  std::cout << get_time(62, 0.0f) << std::endl;
-  std::cout << get_time(165, 0.0f) << std::endl;
-  std::cout << "--------" << std::endl;
-  std::vector<float> res = get_measure_n_note(-0.5829);
-  std::cout << res[0] << ", " << res[1] << std::endl;
-  res = get_measure_n_note(1.20814);
-  std::cout << res[0] << ", " << res[1] << std::endl;
-  res = get_measure_n_note(2.99919);
-  std::cout << res[0] << ", " << res[1] << std::endl;
-  res = get_measure_n_note(44.1932);
-  std::cout << res[0] << ", " << res[1] << std::endl;
-  res = get_measure_n_note(48.1932);
-  std::cout << res[0] << ", " << res[1] << std::endl;
-  res = get_measure_n_note(79.5365);
-  std::cout << res[0] << ", " << res[1] << std::endl;
-  res = get_measure_n_note(109.998);
-  std::cout << res[0] << ", " << res[1] << std::endl;
-  res = get_measure_n_note(294.476);
-  std::cout << res[0] << ", " << res[1] << std::endl;
-  */
+   * The first 45 measures are fine but after that hmm.. 
+   */
   update_note_length(1, 0.0f);
 }
 
@@ -159,6 +132,5 @@ void Level::update(float elapsed) {
   timer += elapsed;
   std::vector<float> measure_n_note = get_measure_n_note(timer);
   update_note_length((int)measure_n_note[0], measure_n_note[1]);
-  // std::cout << measure_n_note[0] << ", " << measure_n_note[1] << std::endl;
 
 }
