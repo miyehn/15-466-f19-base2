@@ -12,23 +12,22 @@
 #include "Target.hpp"
 
 struct GameMode : Mode {
-  GameMode();
+  GameMode(Level* lv_);
   virtual ~GameMode();
 
   virtual bool handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) override;
   void init();
   virtual void update(float elapsed) override;
   virtual void draw(glm::uvec2 const &drawable_size) override;
-  // background music
-  std::shared_ptr< Sound::PlayingSample > background_music;
   Level *level = nullptr;
 
   //------ game states ------
   glm::vec2 scene_size = glm::vec2(720, 480); // will use this size to fill entire window
+  bool up_side_down = false;
+  SDL_Keycode key = SDLK_SPACE;
   float time_since_start = 0.0f;
 
-  float padding = 0.0f; // outside of this range, things don't get drawn (Q: update?)
-  float horizon_height = 200.0f; // how far is the floor from bottom of canvas
+  float padding = 20.0f; // outside of this range, things don't get drawn (Q: update?)
   float progress = -100.0f; // how many pixels has the window displaced already
   float min_x, max_x;
 

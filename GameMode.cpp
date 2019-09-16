@@ -1,24 +1,10 @@
 #include "GameMode.hpp"
 
-// #include "Sprite.hpp"
-// #include "DrawSprites.hpp"
 #include "Load.hpp"
-#include "data_path.hpp"
 #include "gl_errors.hpp"
-#include "Sound.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
-Load< Sound::Sample > soundtrack(LoadTagDefault, []() -> Sound::Sample * {
-  return new Sound::Sample(data_path("track.wav"));
-});
-
-Level *level_from_file = nullptr;
-Load< Level > level_load_from_file(LoadTagDefault, []() -> Level * {
-  level_from_file = new Level(data_path("level"));
-  return level_from_file;
-});
-
-GameMode::GameMode() {
+GameMode::GameMode(Level* lv_) {
   //----- allocate OpenGL resources -----
   { //vertex buffer:
     glGenBuffers(1, &vertex_buffer);
@@ -105,9 +91,9 @@ GameMode::GameMode() {
     GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
   }
 
-  level = level_from_file;
+  level = lv_;
   init();
-  background_music = Sound::play(*soundtrack, 1.0f);
+  // background_music = Sound::play(*soundtrack, 1.0f);
 }
 
 GameMode::~GameMode() {
@@ -137,18 +123,24 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
   float hscale = 2.0f / scene_size.x;
   float vscale = 2.0f / scene_size.y;
 
-  glm::mat4 canvas_to_clip = glm::mat4(
-    glm::vec4(hscale, 0.0f, 0.0f, 0.0f),  
-    glm::vec4(0.0f, vscale, 0.0f, 0.0f),  
-    glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),  
-    glm::vec4(-1.0f - progress * hscale, -1.0f + horizon_height * vscale, 0.0f, 1.0f)
-  );
+  glm::mat4 canvas_to_clip;
+  if (up_side_down) {
+    canvas_to_clip = glm::mat4(
+      glm::vec4(hscale, 0.0f, 0.0f, 0.0f),  
+      glm::vec4(0.0f, -vscale, 0.0f, 0.0f),  
+      glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),  
+      glm::vec4(-1.0f - progress * hscale, +1.0f - scene_size.y / 2.0f * vscale, 0.0f, 1.0f)
+    );
+  } else {
+    canvas_to_clip = glm::mat4(
+      glm::vec4(hscale, 0.0f, 0.0f, 0.0f),  
+      glm::vec4(0.0f, vscale, 0.0f, 0.0f),  
+      glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),  
+      glm::vec4(-1.0f - progress * hscale, -1.0f + scene_size.y / 2.0f * vscale, 0.0f, 1.0f)
+    );
+  }
 
   //---- actual drawing ----
-
-  //clear the color buffer:
-  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
 
   //use alpha blending:
   glEnable(GL_BLEND);

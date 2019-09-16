@@ -175,6 +175,7 @@ GAME_NAMES =
   Bullet
   Target
   Level
+  MasterMode
 	;
 
 PACK_SPRITES_NAMES =

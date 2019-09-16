@@ -18,7 +18,7 @@ void GameMode::init() {
   bool in_jump = false;
   bool in_shoot = false;
   // ok to scan into
-  int m = 0; float n = 0.0f;
+  int m = 0; float n = 0.0f; // temporary storage for measure_cnt and note_cnt
   float r_n = 0.0f; // release offset note parsed from same line as jump
   float offset_n = 0.0f; // parsed from inside jump or shoot, note offset since last abs time
   float shoot_n = 0.0f; // parsed from inside shoot, shooting time as note offset since last abs time
@@ -148,7 +148,7 @@ void GameMode::update(float elapsed) {
 }
 
 bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
-  if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_a) {
+  if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == key) {
 
     // to prevent a...aaaaaaaaaaaaa
     if (player->key_pressed) return true;
@@ -164,7 +164,7 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
     }
     return true;
 
-  } else if (evt.type == SDL_KEYUP && evt.key.keysym.sym == SDLK_a) {
+  } else if (evt.type == SDL_KEYUP && evt.key.keysym.sym == key) {
     // unlock this key
     player->key_pressed = false;
 

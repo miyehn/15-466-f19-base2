@@ -64,16 +64,15 @@ void Player::draw_prep() {
   if (level->debug) {
     // draw measure bars for debug
     glm::u8vec4 tmp_col(80, 80, 80, 255);
-    //glm::u8vec4 magenta(255,0,255,255);
     for (int i=1; i<=165; i++) {
       float x0 = level->get_time(i, 0.0f) * horizontal_speed;
       float x1 = level->get_time(i, 1.0f) * horizontal_speed;
       float x2 = level->get_time(i, 2.0f) * horizontal_speed;
       float x3 = level->get_time(i, 3.0f) * horizontal_speed;
-      rect(glm::vec2(x0,0), glm::vec2(1, 100), tmp_col);
-      rect(glm::vec2(x1,0), glm::vec2(0.5, 100), tmp_col);
-      rect(glm::vec2(x2,0), glm::vec2(0.5, 100), tmp_col);
-      rect(glm::vec2(x3,0), glm::vec2(0.5, 100), tmp_col);
+      rect(glm::vec2(x0,50), glm::vec2(1, 49), tmp_col);
+      rect(glm::vec2(x1,50), glm::vec2(0.5, 49), tmp_col);
+      rect(glm::vec2(x2,50), glm::vec2(0.5, 49), tmp_col);
+      rect(glm::vec2(x3,50), glm::vec2(0.5, 49), tmp_col);
     }
   }
 

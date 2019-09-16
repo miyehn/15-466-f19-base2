@@ -1,4 +1,5 @@
 debug 1
+# note: autoplay is currently not implemented...
 autoplay 0
 
 --
