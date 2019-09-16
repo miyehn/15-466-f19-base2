@@ -35,7 +35,7 @@ void Player::update(float elapsed, float min_x, float max_x) {
   fly_time_threshold = jump_period / 2.0f;
 
   // motion update
-  if (key_pressed && current_fly_time >= fly_time_threshold) {
+  if (key_pressed_since_jump && current_fly_time >= fly_time_threshold) {
     acceleration = glm::vec2(0, (fly_height - position.y) * four_pi_sq / jump_period / jump_period);
   } else {
     acceleration = gravity;

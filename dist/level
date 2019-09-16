@@ -22,8 +22,7 @@ autoplay 0
 2 0 jump +0 obstacle
 end jump
 
-4 0 jump +3 obstacle
-  +1.0 star
-  +1.5 star
-  +2.0 star
+4 0 jump +0 obstacle
+  +0.5 prepare +1.5 shoot
+  end shoot
 end jump

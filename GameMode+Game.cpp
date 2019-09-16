@@ -14,18 +14,22 @@ void GameMode::init() {
   int measure_cnt = 0; 
   float note_cnt = 0.0f;
   float release_n = 0.0f;
+  float shooting_pos_x, shooting_pos_h, bullet_energy = 0.0f;
   bool in_jump = false;
+  bool in_shoot = false;
   // ok to scan into
   int m = 0; float n = 0.0f;
-  float r_n = 0.0f;
-  float offset_n = 0.0f;
+  float r_n = 0.0f; // release offset note parsed from same line as jump
+  float offset_n = 0.0f; // parsed from inside jump or shoot, note offset since last abs time
+  float shoot_n = 0.0f; // parsed from inside shoot, shooting time as note offset since last abs time
 
   for (auto line : level->level_info) {
     const char* l = line.c_str();
-    std::cout << "----parsing: " << line << std::endl << std::endl;
+    std::cout << "----parsing: " << line << std::endl;
 
     // parse level info from input
 
+    //---- jumping ----
     if (sscanf(l, "%d %f jump +%f", &m, &n, &r_n)==3) { // absolute timing
       in_jump = true;
       measure_cnt = m; note_cnt = n; release_n = r_n;
@@ -39,16 +43,31 @@ void GameMode::init() {
     } else if (line == "end jump") {
       in_jump = false;
 
-    } else if (sscanf(l, "  +%f", &offset_n)==1 && line.substr(line.length()-5,5)==" star") { // relative timing
+    //---- star ----
+    } else if (sscanf(l, "  +%f", &offset_n)==1 && 
+        line.substr(line.length()-5,5)==" star") { // relative timing
       assert(in_jump);
-      m = measure_cnt;
-      n = note_cnt + offset_n;
+      m = measure_cnt; n = note_cnt + offset_n;
       while (n >= 4) { m++; n-=4; }
       float x = level->speed * level->get_time(m, n);
       float h = player->height_since_takeoff(offset_n * level->note_length, release_n * level->note_length);
       Star* star = new Star(vertices, level, glm::vec2(x, h), glm::u8vec4(255, 220, 0, 255));
       stars.push_back(star);
       objects.push_back(star);
+
+    //---- shooting ----
+    } else if (sscanf(l, "  +%f prepare +%f", &offset_n, &shoot_n)==2 && 
+        line.substr(line.length()-6,6)==" shoot") {
+      assert(in_jump && !in_shoot);
+      in_shoot = true;
+      m = measure_cnt; n = note_cnt + shoot_n;
+      while (n >= 4) { m++; n-=4; }
+      shooting_pos_x = level->speed * level->get_time(m, n);
+      shooting_pos_h = player->height_since_takeoff(shoot_n * level->note_length, release_n * level->note_length);
+      bullet_energy = (shoot_n-offset_n) * level->note_length;
+
+    } else if (line=="  end shoot") {
+      in_shoot = false;
 
     } else {
       std::cout << "parse failed!" << std::endl;
@@ -57,20 +76,9 @@ void GameMode::init() {
 
   }
   assert(!in_jump);
+  assert(!in_shoot);
   
   /*
-  // stars
-  for (int i=0; i<4; i++) {
-    Star* star = new Star(vertices, level, glm::vec2(300 + 150*i, 20), glm::u8vec4(255, 220, 0, 255));
-    stars.push_back(star);
-    objects.push_back(star);
-  }
-  
-  for (int i=0; i<10; i++) {
-    Star* star = new Star(vertices, level, glm::vec2(100 + 40*i, 50), glm::u8vec4(255, 0, 0, 255));
-    stars.push_back(star);
-    objects.push_back(star);
-  }
 
   // targets
   for (int i=0; i<5; i++) {
