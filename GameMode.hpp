@@ -29,7 +29,7 @@ struct GameMode : Mode {
 
   float padding = 0.0f; // outside of this range, things don't get drawn (Q: update?)
   float horizon_height = 200.0f; // how far is the floor from bottom of canvas
-  float progress = 0.0f; // how many pixels has the window displaced already
+  float progress = -100.0f; // how many pixels has the window displaced already
   float min_x, max_x;
 
   // generics

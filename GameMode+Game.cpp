@@ -4,22 +4,61 @@
 void GameMode::init() {
   assert(level != nullptr);
 
-  for (auto line : level->level_info) {
-    std::cout << line << std::endl;
-  }
-  
   // player
-  player = new Player(vertices, level, glm::vec2(50, 0), glm::u8vec4(200, 200, 200, 255));
+  player = new Player(vertices, level, glm::vec2(0, 0), glm::u8vec4(200, 200, 200, 255));
   objects.push_back(player);
   player->level = this->level;
 
-  // obstacles
-  for (int i=0; i<5; i++) {
-    Obstacle* obs = new Obstacle(vertices, level, glm::vec2(200 + 100*i, 0), glm::u8vec4(200, 100, 0, 255));
-    obstacles.push_back(obs);
-    objects.push_back(obs);
+  // things to keep track of when parsing
+  // DO NOT SCAN INTO THESE
+  int measure_cnt = 0; 
+  float note_cnt = 0.0f;
+  float release_n = 0.0f;
+  bool in_jump = false;
+  // ok to scan into
+  int m = 0; float n = 0.0f;
+  float r_n = 0.0f;
+  float offset_n = 0.0f;
+
+  for (auto line : level->level_info) {
+    const char* l = line.c_str();
+    std::cout << "----parsing: " << line << std::endl << std::endl;
+
+    // parse level info from input
+
+    if (sscanf(l, "%d %f jump +%f", &m, &n, &r_n)==3) { // absolute timing
+      in_jump = true;
+      measure_cnt = m; note_cnt = n; release_n = r_n;
+      if (line.substr(line.length()-9, 9)==" obstacle") {
+        float x = level->speed * (level->get_time(measure_cnt, note_cnt) + player->jump_period/2.0f);
+        Obstacle* obs = new Obstacle(vertices, level, glm::vec2(x, 0), glm::u8vec4(200, 100, 0, 255));
+        obstacles.push_back(obs);
+        objects.push_back(obs);
+      }
+
+    } else if (line == "end jump") {
+      in_jump = false;
+
+    } else if (sscanf(l, "  +%f", &offset_n)==1 && line.substr(line.length()-5,5)==" star") { // relative timing
+      assert(in_jump);
+      m = measure_cnt;
+      n = note_cnt + offset_n;
+      while (n >= 4) { m++; n-=4; }
+      float x = level->speed * level->get_time(m, n);
+      float h = player->height_since_takeoff(offset_n * level->note_length, release_n * level->note_length);
+      Star* star = new Star(vertices, level, glm::vec2(x, h), glm::u8vec4(255, 220, 0, 255));
+      stars.push_back(star);
+      objects.push_back(star);
+
+    } else {
+      std::cout << "parse failed!" << std::endl;
+
+    }
+
   }
+  assert(!in_jump);
   
+  /*
   // stars
   for (int i=0; i<4; i++) {
     Star* star = new Star(vertices, level, glm::vec2(300 + 150*i, 20), glm::u8vec4(255, 220, 0, 255));
@@ -56,6 +95,7 @@ void GameMode::init() {
     targets.push_back(t);
     objects.push_back(t);
   }
+  */
 }
 
 void GameMode::update(float elapsed) {

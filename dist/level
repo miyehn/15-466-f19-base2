@@ -13,16 +13,17 @@ autoplay 0
 --
 
 # jump height, float height, progress speed
-50 30 40
+50 45 50
 
 --
 
-# actual level starts here
+# actual level info starts here
 
-fdasfd
-bab
+2 0 jump +0 obstacle
+end jump
 
-baba la ba ~
- 
-fdas
-
+4 0 jump +3 obstacle
+  +1.0 star
+  +1.5 star
+  +2.0 star
+end jump
