@@ -26,6 +26,8 @@
 #include <memory>
 #include <algorithm>
 
+int screenshot_count = 0;
+
 int main(int argc, char **argv) {
 #ifdef _WIN32
 	//when compiled on windows, unhandled exceptions don't have their message printed, which can make debugging simple issues difficult.
@@ -53,7 +55,7 @@ int main(int argc, char **argv) {
 
 	//create window:
 	SDL_Window *window = SDL_CreateWindow(
-		"gp19 the planet of choices", //TODO: remember to set a title for your game!
+		"(untitled-2)", //TODO: remember to set a title for your game!
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		720, 480, //TODO: modify window size if you'd like
 		SDL_WINDOW_OPENGL
@@ -136,10 +138,11 @@ int main(int argc, char **argv) {
 				} else if (evt.type == SDL_QUIT) {
 					Mode::set_current(nullptr);
 					break;
-				} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_PRINTSCREEN) {
+				} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE) {
 					// --- screenshot key ---
-					std::string filename = "screenshot.png";
+					std::string filename = "screenshots/screenshot-" + std::to_string(screenshot_count) + ".png";
 					std::cout << "Saving screenshot to '" << filename << "'." << std::endl;
+          screenshot_count++;
 					glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 					glReadBuffer(GL_FRONT);
 					int w,h;

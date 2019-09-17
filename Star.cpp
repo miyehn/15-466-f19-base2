@@ -15,11 +15,11 @@ void Star::update(float elapsed, float min_x, float max_x) {
 }
 
 void Star::draw_prep() {
-  if (!exploding) rect(position, glm::vec2(4, 4), color);
+  if (!exploding) rect(position, glm::vec2(2, 2), color);
   else {
-    for (float a = 0.0f; a < glm::two_pi<float>(); a+= glm::two_pi<float>()/6) {
+    for (float a = 0.0f; a < glm::two_pi<float>(); a+= glm::two_pi<float>()/4) {
       glm::vec2 offset(glm::cos(a), glm::sin(a));
-      rect(position + radius * offset, glm::vec2(2, 2), color);
+      rect(position + radius * offset, glm::vec2(1.5, 1.5), color);
     }
   }
 }

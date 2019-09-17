@@ -9,6 +9,6 @@ void Obstacle::update(float elapsed, float min_x, float max_x) {
 }
 
 void Obstacle::draw_prep() {
-  rect(position, glm::vec2(4, 4), color);
+  rect(position + glm::vec2(0, 18), glm::vec2(3, 8), color);
 }
 

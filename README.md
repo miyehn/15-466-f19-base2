@@ -1,19 +1,27 @@
-# (TODO: your game's title)
+# Untitled-2
 
-Author: (TODO: your name)
+Author: Rain Du
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: A rhythm game (I would call this a demo version) that looks a lot like a shooting platformer.
 
 Screen Shot:
 
 ![Screen Shot](screenshot.png)
 
+And [here](https://youtu.be/y9LkzDODqvc)'s a screen recording of a pretty good play through.
+
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+`a`: the orange square jumps up, or if already in air, shoot a bullet.  
+`l`: the shadow jumps down, or if already in air, shoot a bullet.  
+Or, hold down `a` or `l` to float  
+
+`space`: both the square and its shadow jump (with extra power).
 
 Sources:
 
-(TODO: fill in information about the sources of any **artwork** or **sounds** you used in the game that you did not create yourself. Feel free to also credit yourself for things you did make.)
+Soundtrack by 希望索任合资, [here](https://www.weibo.com/u/1591256395) is his Weibo. The whole track could be found at [this Weibo link](https://www.weibo.com/tv/v/I1028pKI5?fid=1034:4402383103716082).
+
+The composer is generous enough to let me use his work, but for this assignment only. So I'm not uploading the original file here. I did place a copy of the .wav file I used in the handin folder, so the game builds over there and can be graded.
 
 This game was built with [NEST](NEST.md).

@@ -1,13 +1,14 @@
 #include "Player.hpp"
 #include <iostream>
 #include <glm/gtc/constants.hpp>
+#include "GL.hpp"
 
 /* lmao throw back to high school calc and kinematics... 
  * found some math help from: https://courses.lumenlearning.com/boundless-physics/chapter/periodic-motion/
  */
 
 Player::Player(std::vector<Vertex> &vertices_, Level *lv_, glm::vec2 position_, glm::u8vec4 color_) : 
-    GameObject(vertices_, lv_, position_, color_) { 
+    GameObject(vertices_, lv_, position_, color_) {
 
   four_pi_sq = glm::pow<float>(glm::pi<float>(), 2) * 4.0f;
   horizontal_speed = level->speed; 
@@ -18,6 +19,7 @@ Player::Player(std::vector<Vertex> &vertices_, Level *lv_, glm::vec2 position_, 
   acceleration = gravity;
   jump_thrust = glm::vec2(level->speed, -gravity.y * jump_period / 2.0f);
   fly_time_threshold = jump_period / 2.0f;
+  bullet_energy_threshold = level->note_length / 2.0f;
 }
 
 Player::~Player() {
@@ -67,7 +69,7 @@ void Player::draw_prep() {
   if (level->debug) {
     // draw measure bars for debug
     glm::u8vec4 tmp_col(80, 80, 80, 255);
-    for (int i=1; i<=165; i++) {
+    for (int i=1; i<=27; i++) {
       float x0 = level->get_time(i, 0.0f) * horizontal_speed;
       float x1 = level->get_time(i, 1.0f) * horizontal_speed;
       float x2 = level->get_time(i, 2.0f) * horizontal_speed;
@@ -78,11 +80,11 @@ void Player::draw_prep() {
       rect(glm::vec2(x3,50), glm::vec2(0.5, 49), tmp_col);
     }
     if (in_doublejump) {
-      rect(glm::vec2(position.x, height_since_takeoff(current_fly_time)), glm::vec2(100, 1), tmp_col);
+      rect(glm::vec2(position.x, height_since_takeoff(current_fly_time, -1.0f, true)), glm::vec2(100, 1), tmp_col);
     }
   }
 
-  rect(position, glm::vec2(10, 10), active ? color : inactive_color);
+  rect(position, glm::vec2(6, 6), active ? color : inactive_color);
 }
 
 void Player::jump() {
@@ -111,11 +113,11 @@ void Player::cancel_shoot() {
   bullet_energy = 0.0f;
 }
 
-float Player::height_since_takeoff(float t, float release_t) {
-  if (in_doublejump) {
+float Player::height_since_takeoff(float t, float release_t, bool doublejump) {
+  if (doublejump) {
     float doublejump_period = level->note_length * 4.0f;
-    float v0 = -gravity.y * doublejump_period / 2.0f;
-    float g = gravity.y;
+    float g = -8.0f * level->max_height*1.5f / doublejump_period / doublejump_period;
+    float v0 = -g * doublejump_period / 2.0f;
     return v0*t + g * t*t / 2.0f;
   } else if (t<release_t && t >= fly_time_threshold){ // floating
     float period = (t/jump_period) * glm::two_pi<float>();

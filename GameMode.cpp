@@ -4,7 +4,11 @@
 #include "gl_errors.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
-GameMode::GameMode(Level* lv_) {
+GameMode::GameMode(Level* lv_, 
+      glm::u8vec4 player_c,
+      glm::u8vec4 target_c,
+      glm::u8vec4 star_c,
+      glm::u8vec4 obstacle_c) {
   //----- allocate OpenGL resources -----
   { //vertex buffer:
     glGenBuffers(1, &vertex_buffer);
@@ -91,9 +95,7 @@ GameMode::GameMode(Level* lv_) {
     GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
   }
 
-  level = lv_;
-  init();
-  // background_music = Sound::play(*soundtrack, 1.0f);
+  init(lv_, player_c, target_c, star_c, obstacle_c);
 }
 
 GameMode::~GameMode() {

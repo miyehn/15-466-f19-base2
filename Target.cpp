@@ -34,5 +34,6 @@ void Target::draw_prep() {
 }
 
 void Target::explode() {
-  exploding = true;
+  if (destructive) exploding = true;
+  else dead = true;
 }

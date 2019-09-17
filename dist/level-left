@@ -1,0 +1,124 @@
+debug 0
+# note: autoplay is currently not implemented...
+autoplay 0
+
+--
+
+# tempo info
+1 134
+26 120
+28 134
+45.5 130
+62 134
+
+--
+
+# jump height, float height, progress speed
+50 45 50
+
+--
+
+# actual level info starts here
+
+2 0 jump +0 obstacle
+end jump
+
+4 0 jump +0 obstacle
+end jump
+
+6 0 jump +0 obstacle
+  +0.5 star
+  +0.5 prepare +0.5 shoot
+    +1.5 >0 destructive
+  end shoot
+end jump
+
+8 0 jump +0 obstacle
+  +0.5 star
+  +0.5 prepare +0.5 shoot
+    +1.5 >0 destructive
+  end shoot
+end jump
+
+10 0 jump +0
+  +0.5 star
+  +0.5 prepare +0.5 shoot
+    +0.5 >0 target
+    +3.5 >0 destructive
+  end shoot
+end jump
+
+12 0 jump +0
+  +0.5 star
+  +0.5 prepare +0.5 shoot
+    +0.5 >0 target
+    +1.0 >0 target
+    +1.5 >0 target
+    +3.5 >0 destructive
+  end shoot
+end jump
+
+14 0 jump +0
+  +0.5 star
+  +0.5 prepare +0.5 shoot
+    +0.5 >0 target
+    +1.5 >0 destructive
+  end shoot
+end jump
+
+16 0 jump +0 obstacle
+  +0.5 star
+  +0.5 prepare +0.5 shoot
+    +1.5 >0 destructive
+  end shoot
+  +1.0 star
+  +1.0 prepare +1.0 shoot
+    +1.5 >0 target
+    +3.0 >0 destructive
+  end shoot
+end jump
+
+# 唢呐 begins
+18 0 jump +6 obstacle
+  +1.0 star
+  +2.0 star
+  +3.0 star
+  +4.0 star
+  +5.0 star
+end jump
+
+20 0 jump +6 obstacle
+  +1.0 star
+  +2.0 star
+  +3.0 star
+  +4.0 star
+  +5.0 star
+end jump
+
+22 0 jump +0 obstacle
+  +1.0 star
+  +1.0 prepare +1.0 shoot
+    +1.0 >0 target
+    +3.0 >0 destructive
+  end shoot
+end jump
+
+24 0 jump +0 obstacle
+  +0.5 star
+  +0.5 prepare +0.5 shoot
+    +0.5 >0 target
+    +1.5 >0 destructive
+  end shoot
+end jump
+
+25 0 jump +0 obstacle
+  +0.5 star
+  +0.5 prepare +0.5 shoot
+    +0.5 >0 target
+    +1.5 >0 destructive
+  end shoot
+end jump
+
+26 0 doublejump
+  +2.0 star
+end jump

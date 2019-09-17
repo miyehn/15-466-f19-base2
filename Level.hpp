@@ -11,8 +11,10 @@ struct Level {
   int measure = 1;
   float note = 0.0f;
 
-  float time_offset = 0.0f; //-0.0729f; 
-  float visual_offset = 0.0f; //-0.7829f;
+  float time_offset = -0.1f; //-0.0729f; 
+  float visual_offset = -0.1f; //-0.7829f;
+
+  // float pan = 0.0f;
   
   // start_measure_cnt, tempo, start_measure_cnt, tempo, ...
   std::vector<float> tempo_info = std::vector<float>(); 

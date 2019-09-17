@@ -28,7 +28,7 @@ struct Player : GameObject {
 
   // active/inactive due to obstacles
   bool active = true;
-  glm::u8vec4 inactive_color = glm::u8vec4(100, 100, 100, 255);
+  glm::u8vec4 inactive_color = glm::u8vec4(98, 98, 98, 255);
   float max_inactive_time = 2.0f;
   float current_inactive_time = 0.0f;
   void deactivate();
@@ -45,12 +45,14 @@ struct Player : GameObject {
   float fly_height;
   void jump();
   void doublejump(); // invoked from MasterMode only
-  float height_since_takeoff(float t, float release_t = -1.0f);
+  float height_since_takeoff(float t, float release_t = -1.0f, bool doublejump = false);
 
   // shooting-related
   bool preparing_shoot = false;
   float bullet_energy = 0.0f;
+  float bullet_energy_threshold = 0.0f;
   void prepare_shoot();
   Bullet* shoot();
   void cancel_shoot();
+
 };

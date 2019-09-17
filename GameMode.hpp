@@ -12,11 +12,19 @@
 #include "Target.hpp"
 
 struct GameMode : Mode {
-  GameMode(Level* lv_);
+  GameMode(Level* lv_, 
+      glm::u8vec4 player_c,
+      glm::u8vec4 target_c,
+      glm::u8vec4 star_c,
+      glm::u8vec4 obstacle_c);
   virtual ~GameMode();
 
   virtual bool handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) override;
-  void init();
+  void init(Level* lv_, 
+      glm::u8vec4 player_c,
+      glm::u8vec4 target_c,
+      glm::u8vec4 star_c,
+      glm::u8vec4 obstacle_c);
   virtual void update(float elapsed) override;
   virtual void draw(glm::uvec2 const &drawable_size) override;
   Level *level = nullptr;
